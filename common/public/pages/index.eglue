@@ -9,10 +9,10 @@ if (environment("mobile") == true)
 }}
 		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<script src="javascript/vendor"></script>
-		<script src="javascript/nabu"></script>
-		<script src="javascript/application"></script>
-		<link rel="stylesheet" type="text/css" href="css/application">
+		<script src="${server.root()}javascript/vendor"></script>
+		<script src="${server.root()}javascript/nabu"></script>
+		<script src="${server.root()}javascript/application"></script>
+		<link rel="stylesheet" type="text/css" href="${server.root()}css/application">
 	</head>
 	<body>
 ${{
