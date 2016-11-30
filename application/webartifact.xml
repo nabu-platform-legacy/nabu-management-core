@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<webApplication>
+    <virtualHost>nabu.management.core.host</virtualHost>
+    <realm>nabu</realm>
+    <path>/</path>
+    <webFragments>nabu.management.core.common</webFragments>
+    <webFragments>nabu.management.workflow.component</webFragments>
+</webApplication>

@@ -1,0 +1,24 @@
+@cache
+
+if (environment("mobile") != true)
+	response.header("Content-Type", "application/javascript")
+
+resources = series("application.js", "routes.js")
+
+for (resource : resources)
+	echo(resource(resource), "\n")
+
+switch (environment("mobile"))
+	case(true)
+		echo(resource("mobile.js"))
+	default
+		echo(resource("web.js"))
+	
+for (resource : resources("index"))
+	if (resource ~ ".*\.js")
+		echo(resource(resource, "index"), "\n")
+	
+for (script : repository())
+	if (script/namespace != null && script/namespace ~ "nabu.management.component.[\w]+.javascript")
+		console("Loading javascript: " + script/namespace + "." + script/name)
+		function(script/namespace + "." + script/name)()

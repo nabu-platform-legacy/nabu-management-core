@@ -1,0 +1,32 @@
+<html>
+	<head>
+${{
+if (environment("mobile") == true)
+	echo('		<meta http-equiv="Content-Security-Policy" content="default-src \'self\' data: gap: cdvfile: https://ssl.gstatic.com \'unsafe-eval\' \'unsafe-inline\'; connect-src \'self\' ws: wss: http: https:; style-src \'self\'; media-src *">')
+	echo('		<meta name="format-detection" content="telephone=no">')
+	echo('		<meta name="msapplication-tap-highlight" content="no">')
+	echo('		<script src="cordova.js"></script>')
+}}
+		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<script src="javascript/vendor"></script>
+		<script src="javascript/nabu"></script>
+		<script src="javascript/application"></script>
+		<link rel="stylesheet" type="text/css" href="css/application">
+	</head>
+	<body>
+${{
+for (resource : resources())
+	if (resource ~ ".*\.tpl")
+		echo(resource(resource), "\n")
+
+for (script : repository())
+	console("checking script: " +  script/namespace + "." + script/name)
+	if (script/namespace != null && script/namespace ~ "nabu.management.component.[\w]+.tpl")
+		console("Loading tpl: " + script/namespace + "." + script/name)
+		function(script/namespace + "." + script/name)()
+		
+nabu.components("tpl")
+}}
+	</body>
+</html>

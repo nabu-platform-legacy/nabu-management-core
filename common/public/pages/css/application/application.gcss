@@ -1,0 +1,80 @@
+html {
+	font-family: 'Segoe UI', 'DejaVu Sans', sans-serif; /* 1 */
+	font-weight: 300;
+	-ms-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
+}
+html, body {
+	font-weight: 300;
+	margin: 0;
+	padding: 0;
+}
+html, body, *, *:before, *:after {
+	box-sizing: border-box;
+}
+
+* {
+	color: #333;
+}
+
+input, select {
+	padding: 6px 10px;
+	box-shadow: none;
+	border-radius: 0px;
+	background-color: #fff;
+	border: solid 1px #ccc;
+	
+	&[disabled] {
+		color: #aaa;
+		background-color: #fafafa;
+	}
+}
+
+a {
+	text-decoration: none;
+	color: #485dae;
+}
+table {
+	margin: 20 auto;
+	width: 90%;
+	border: solid 1px #ccc;
+	border-style: solid solid none none;
+	text-align: center;
+	
+	thead {
+		td {
+			background-color: #333;
+			color: #fff;
+		}
+	}
+	tbody {
+		tr {
+			:nth-child(odd) {
+				background-color: #fafafa;
+			}
+		}
+	}
+	td {
+		padding: 10px;
+		font-size: 9pt;
+		border: solid 1px #ccc;
+		border-style: none none solid solid;
+	}
+}
+
+.bad {
+	background-color: #ffd5d6;
+	color: #b31619;
+}
+.warning {
+	background-color: #ffe190;
+	color: #836003;
+}
+.neutral {
+	background-color: #d9dcff;
+	color: #000a88;
+}
+.good {
+	background-color: #ecfdc3;
+	color: #5c8200;
+}

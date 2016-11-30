@@ -1,0 +1,10 @@
+if (environment("web") == true)
+	response.header("Content-Type", "application/javascript")
+
+vendor.javascript.utils(
+	"lawnchair-0.6.1.js",
+	"lawnchair-dom-0.6.1.js",
+	"lawnchair-window-name-0.6.1.js",
+	"vue-1.0.28.js",
+	"hammer-2.0.7.js",
+	"vue-touch-1.0.2.js")

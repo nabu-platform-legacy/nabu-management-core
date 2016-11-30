@@ -1,0 +1,16 @@
+@cache
+
+nabu.components("css")
+
+for (resource : resources())
+	if (resource ~ ".*\.gcss")
+		eval(resource(resource))
+		
+for (resource : resources("index"))
+	if (resource ~ ".*\.gcss")
+		eval(resource(resource, "index"))
+
+for (script : repository())
+	if (script/namespace != null && script/namespace ~ "nabu.management.component.[\\w]+.gcss")
+		console("Loading gcss: " + script/namespace + "." + script/name)
+		function(script/namespace + "." + script/name)()
