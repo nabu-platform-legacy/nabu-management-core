@@ -4,5 +4,8 @@
     <realm>nabu</realm>
     <path>/</path>
     <webFragments>nabu.management.core.common</webFragments>
+    <webFragments>nabu.management.cluster.component</webFragments>
+    <webFragments>nabu.management.artifacts.component</webFragments>
+    <webFragments>nabu.management.metrics.component</webFragments>
     <webFragments>nabu.management.workflow.component</webFragments>
 </webApplication>

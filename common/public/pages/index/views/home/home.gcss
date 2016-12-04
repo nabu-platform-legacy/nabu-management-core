@@ -1,0 +1,10 @@
+[route=home] {
+	text-align: center;
+	
+	.dashboard {
+		width: calc(25% - 50px);
+		border: solid 1px #CCC;
+		display: inline-block;
+		margin: 25px;
+	}
+}

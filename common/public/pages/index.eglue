@@ -13,6 +13,7 @@ if (environment("mobile") == true)
 		<script src="${server.root()}javascript/nabu"></script>
 		<script src="${server.root()}javascript/application"></script>
 		<link rel="stylesheet" type="text/css" href="${server.root()}css/application">
+		<title>Nabu Management</title>
 	</head>
 	<body>
 ${{

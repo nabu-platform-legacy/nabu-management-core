@@ -1,5 +1,13 @@
 @cache
 
+border = structure(color: "#ccc", width: "1px", style: "solid")
+accent = structure(light: "#fafafa")
+levels = structure(info: structure(dark: "#2ECC40", light: "#d2ffd7"),	error: structure(dark: "#ff7200", light: "#ffd2ad"), critical: structure(dark: "#FF4136", light: "#ffd0ce"), warning: structure(dark: "#FFDC00", light: "#fff8cb"), trace: structure(dark: "#7FDBFF", light: "#f2fbff"))
+
+vendor.css.utils(
+	"chartist-0.10.1.css",
+	"chartist-tooltip-0.0.17.css")
+
 nabu.components("css")
 
 for (resource : resources())
@@ -13,4 +21,5 @@ for (resource : resources("index"))
 for (script : repository())
 	if (script/namespace != null && script/namespace ~ "nabu.management.component.[\\w]+.gcss")
 		console("Loading gcss: " + script/namespace + "." + script/name)
-		function(script/namespace + "." + script/name)()
+		// bind the lambda to this scope so it can see the variables
+		bind(function(script/namespace + "." + script/name), scope())()

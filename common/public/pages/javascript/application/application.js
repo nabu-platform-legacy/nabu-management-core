@@ -24,6 +24,9 @@ var application = {
 			application.services.vue = new Vue({
 				el: 'body',
 				data: {
+					row: 0,
+					// objects that point to the routes used to display dashboard components
+					dashboards: [],
 					menu: [{
 						title: "Home",
 						handle: function() {
@@ -31,8 +34,20 @@ var application = {
 						}
 					}]
 				},
+				methods: {
+					getDashboardRow: function() {
+						return this.row++;
+					}
+				},
 				created: function () {
 					this.$broadcast("vue.ready");
+				},
+				watch: {
+					dashboards: function(value) {
+						if (this.$el.getAttribute("route") == "home") {
+							application.services.router.route("home");
+						}
+					}
 				}
 			});
 		},
