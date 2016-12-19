@@ -2,4 +2,5 @@
 <webModule>
     <path>/</path>
     <webFragments>nabu.web.core.components</webFragments>
+    <webFragments>nabu.management.core.rest.datastore.get</webFragments>
 </webModule>

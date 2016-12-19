@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?><node artifactManager="be.nabu.eai.module.http.virtual.VirtualHostManager" lastModified="2016-11-30T10:55:06.529+01:00" leaf="true" version="4"><environmentId>hyperion</environmentId><properties/><references>nabu.management.core.server</references></node>

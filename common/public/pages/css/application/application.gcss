@@ -17,7 +17,7 @@ html, body, *, *:before, *:after {
 	color: #333;
 }
 
-input, select {
+input, select, button {
 	padding: 6px 10px;
 	box-shadow: none;
 	border-radius: 0px;

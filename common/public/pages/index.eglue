@@ -15,19 +15,20 @@ if (environment("mobile") == true)
 		<link rel="stylesheet" type="text/css" href="${server.root()}css/application">
 		<title>Nabu Management</title>
 	</head>
-	<body>
 ${{
+replacer = nabu.utils.lambdas()/templater
+	
 for (resource : resources())
 	if (resource ~ ".*\.tpl")
-		echo(resource(resource), "\n")
+		echo(replacer(resource(resource)), "\n")
 
 for (script : repository())
-	console("checking script: " +  script/namespace + "." + script/name)
 	if (script/namespace != null && script/namespace ~ "nabu.management.component.[\w]+.tpl")
-		console("Loading tpl: " + script/namespace + "." + script/name)
 		function(script/namespace + "." + script/name)()
 		
 nabu.components("tpl")
 }}
+	<body>
+
 	</body>
 </html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<restInterface>
+    <method>GET</method>
+    <path>/api/datastore/{uri : .*}</path>
+    <responseHeaders>Content-Type, Content-Length, Content-Disposition</responseHeaders>
+    <role>$user</role>
+    <permissionAction>core.datastore.get</permissionAction>
+    <outputAsStream>true</outputAsStream>
+</restInterface>
