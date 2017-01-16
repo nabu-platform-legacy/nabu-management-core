@@ -1,0 +1,15 @@
+<sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" disabled="false" id="2c3405e6-b774-40c4-be70-d5e5e98e18fc">
+	<steps xsi:type="be.nabu.libs.services.vm.step.Map" disabled="false" id="84bc4f1a-78fb-4d0b-a624-0b8a7d725b21">
+		<steps xsi:type="be.nabu.libs.services.vm.step.Invoke" disabled="false" id="dbd8fb4e-bdca-4694-a7f4-99a06fa42d50" serviceId="nabu.utils.reflection.Node.listByType" resultName="resultbc0762d6f2864a0e98ba080a6eda9dd4" invocationOrder="0" temporaryMapping="true" y="62" x="40">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link" disabled="false" id="f529c170-feaa-4544-ace2-e8775b0af32b" optional="false" fixedValue="true" mask="false">
+				<from>be.nabu.eai.module.jdbc.pool.JDBCPoolArtifact</from>
+				<to>type</to>
+			</steps>
+			<asynchronous>false</asynchronous>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Link" disabled="false" id="8ad8ec78-bd3b-4df0-a517-3242d29145b5" optional="false" fixedValue="false" mask="false">
+			<from>resultbc0762d6f2864a0e98ba080a6eda9dd4/nodes[/input/filter == null || id ~ /input/filter]/id</from>
+			<to>output/ids</to>
+		</steps>
+	</steps>
+</sequence>

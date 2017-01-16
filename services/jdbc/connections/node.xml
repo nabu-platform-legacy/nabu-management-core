@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><node artifactManager="be.nabu.eai.module.services.vm.VMServiceManager" lastModified="2017-01-12T10:14:49.385+01:00" leaf="true" version="10"><environmentId>hyperion</environmentId><properties/><references>java.lang.String</references><references>nabu.utils.reflection.Node.listByType</references></node>
