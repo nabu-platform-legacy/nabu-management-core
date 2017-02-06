@@ -3,7 +3,7 @@
     <method>GET</method>
     <path>/api/datastore/{uri : .*}</path>
     <responseHeaders>Content-Type, Content-Length, Content-Disposition</responseHeaders>
-    <role>$user</role>
+    <role>manager</role>
     <permissionAction>core.datastore.get</permissionAction>
     <outputAsStream>true</outputAsStream>
 </restInterface>

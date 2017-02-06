@@ -1,0 +1,4 @@
+<structure interface="be.nabu.libs.authentication.api.RoleHandler.hasRole" name="pipeline">
+    <structure name="input"/>
+    <structure name="output"/>
+</structure>
