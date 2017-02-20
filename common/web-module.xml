@@ -3,4 +3,5 @@
     <path>/</path>
     <webFragments>nabu.web.core.components</webFragments>
     <webFragments>nabu.management.core.rest.datastore.get</webFragments>
+    <webFragments>nabu.management.core.rest.connections.list</webFragments>
 </webModule>

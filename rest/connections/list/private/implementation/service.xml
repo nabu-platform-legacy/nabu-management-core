@@ -1,0 +1,22 @@
+<sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" disabled="false" id="e955c845-41ff-4db3-a888-7830d712279f">
+	<steps xsi:type="be.nabu.libs.services.vm.step.Map" disabled="false" id="84bc4f1a-78fb-4d0b-a624-0b8a7d725b21">
+		<steps xsi:type="be.nabu.libs.services.vm.step.Invoke" disabled="false" id="dbd8fb4e-bdca-4694-a7f4-99a06fa42d50" invocationOrder="0" temporaryMapping="true" serviceId="nabu.utils.reflection.Node.listByType" resultName="resultbc0762d6f2864a0e98ba080a6eda9dd4" y="62" x="40">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link" disabled="false" id="f529c170-feaa-4544-ace2-e8775b0af32b" fixedValue="true" optional="false" mask="false">
+				<from>be.nabu.eai.module.jdbc.pool.JDBCPoolArtifact</from>
+				<to>type</to>
+			</steps>
+			<asynchronous>false</asynchronous>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Link" disabled="false" id="045b51e6-882f-4a46-bfe3-481b91c313bb" fixedValue="false" optional="false" mask="false">
+			<from>resultbc0762d6f2864a0e98ba080a6eda9dd4/nodes[/input/configuration/connectionFilter == null || id ~ /input/configuration/connectionFilter]/id</from>
+			<to>output/content/ids</to>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Invoke" disabled="false" id="78d9f9da-267d-453d-bc47-d3550cfe4d4a" invocationOrder="0" temporaryMapping="true" serviceId="nabu.services.jdbc.Services.dialects" resultName="result5791f391295049f7bcfa4e892e0d5b05" y="157" x="41">
+			<asynchronous>false</asynchronous>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Link" disabled="false" id="7ff9ff2b-cf75-42f8-b31e-43aaa18ff862" fixedValue="false" optional="false" mask="false">
+			<from>result5791f391295049f7bcfa4e892e0d5b05/dialects</from>
+			<to>output/content/dialects</to>
+		</steps>
+	</steps>
+</sequence>

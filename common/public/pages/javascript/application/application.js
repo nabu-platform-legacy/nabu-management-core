@@ -60,5 +60,21 @@ Vue.mixin({
 		$application: function() {
 			return application;
 		}
+	},
+	methods: {
+		formatDate: function(value) {
+			return value ? new Date(value).toDateString() : null;
+		},
+		formatDateTime: function(value) {
+			return value ? new Date(value).toLocaleString() : null;
+		}
+	},
+	filters: {
+		formatDate: function(value) {
+			return this.formatDate(value);
+		},
+		formatDateTime: function(value) {
+			return this.formatDateTime(value);
+		}
 	}
 });

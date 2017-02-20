@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<restInterface>
+    <method>GET</method>
+    <path>/api/connection</path>
+    <role>manager</role>
+    <output>nabu.cms.core.management.masterdata.types.connectionList</output>
+    <configurationType>nabu.management.core.configuration</configurationType>
+</restInterface>

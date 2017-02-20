@@ -1,0 +1,4 @@
+<structure name="root">
+    <field maxOccurs="unbounded" minOccurs="0" name="ids" type="java.lang.String"/>
+    <field maxOccurs="unbounded" minOccurs="0" name="dialects" type="java.lang.String"/>
+</structure>
