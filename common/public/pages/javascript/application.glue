@@ -20,5 +20,4 @@ for (resource : resources("index"))
 	
 for (script : repository())
 	if (script/namespace != null && script/namespace ~ "nabu.management.component.[\w]+.(javascript|js)")
-		console("Loading javascript: " + script/namespace + "." + script/name)
 		function(script/namespace + "." + script/name)()

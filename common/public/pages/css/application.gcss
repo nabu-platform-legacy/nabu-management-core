@@ -20,6 +20,5 @@ for (resource : resources("index"))
 
 for (script : repository())
 	if (script/namespace != null && script/namespace ~ "nabu.management.component.[\\w]+.gcss")
-		console("Loading gcss: " + script/namespace + "." + script/name)
 		// bind the lambda to this scope so it can see the variables
 		bind(function(script/namespace + "." + script/name), scope())()

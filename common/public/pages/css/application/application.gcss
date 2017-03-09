@@ -98,3 +98,8 @@ h1 {
 	margin: 0px;
 	background-color: #FAFAFA;
 }
+
+button.action {
+	padding: 1px;
+	margin: 2px;
+}
