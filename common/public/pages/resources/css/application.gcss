@@ -1,0 +1,26 @@
+@cache 0
+
+inject(nabu.utils.css(target: "repository:nabu.management.core.common:/private/provided/artifacts", bundlePath: "repository:nabu.management.core.common:/private/provided/bundle.json"))
+
+box-sizing: border-box;
+
+html:root { 
+	font-size: 16px;
+	font-family: 'DejaVu Sans', 'Segoe UI', sans-serif;
+}
+
+body {
+	height: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+
+//for (script : repository())
+//	if (script/namespace != null && script/namespace ~ "nabu.management.component.[\\w]+.gcss")
+		// bind the lambda to this scope so it can see the variables
+//		bind(function(script/namespace + "." + script/name), scope())()

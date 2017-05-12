@@ -1,0 +1,127 @@
+iconFont ?= "FontAwesome"
+iconSize ?= 14
+
+iconSetter = lambda
+	font-family: ${iconFont}
+	font-size: ${iconSize}px
+
+.n-icon-trash:before {
+	iconSetter()
+	content: "\f1f8";
+}
+
+.n-icon-times:before {
+	iconSetter()
+	content: "\f00d";
+}
+
+.n-icon-arrow-down:before {
+	iconSetter()
+	content: "\f107";
+}
+
+.n-icon-chevron-up:before {
+	iconSetter()
+	content: "\f077";
+}
+.n-icon-chevron-down:before {
+	iconSetter()
+	content: "\f078";
+}
+.n-icon-chevron-left:before {
+	iconSetter()
+	content: "\f053";
+}
+.n-icon-chevron-right:before {
+	iconSetter()
+	content: "\f054";
+}
+
+.n-icon-calendar:before {
+	iconSetter()
+	content: "\f073";
+}
+
+.n-icon-check:before {
+	iconSetter()
+	content: "\f00c";
+}
+
+.n-icon-bold:before {
+	iconSetter()
+	content: "\f032";
+}
+.n-icon-italic:before {
+	iconSetter()
+	content: "\f033";
+}
+.n-icon-table:before {
+	iconSetter()
+	content: "\f0ce";
+}
+.n-icon-link:before {
+	iconSetter()
+	content: "\f0c1";
+}
+.n-icon-underline:before {
+	iconSetter()
+	content: "\f0cd";
+}
+.n-icon-list:before {
+	iconSetter()
+	content: "\f03a";
+}
+.n-icon-indent:before {
+	iconSetter()
+	content: "\f03c";
+}
+.n-icon-outdent:before {
+	iconSetter()
+	content: "\f03b";
+}
+.n-icon-eraser:before {
+	iconSetter()
+	content: "\f12d";
+}
+.n-icon-pencil:before {
+	iconSetter()
+	content: "\f040";
+}
+.n-icon-bars:before {
+	iconSetter()
+	content: "\f0c9";
+}
+.n-icon-info-circle:before {
+	iconSetter()
+	content: "\f05a";
+}
+.n-icon-filter:before {
+	iconSetter()
+	content: "\f0b0";
+}
+
+@keyframes spinner {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.n-icon-spinner {
+	position: relative;
+}
+.n-icon-spinner:before {
+	iconSetter()
+	content: '';
+	box-sizing: border-box;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 20px;
+	height: 20px;
+	margin-top: -10px;
+	margin-left: -10px;
+	border-radius: 50%;
+	border: 2px solid #ccc;
+	border-top-color: #333;
+	animation: spinner .6s linear infinite;
+}

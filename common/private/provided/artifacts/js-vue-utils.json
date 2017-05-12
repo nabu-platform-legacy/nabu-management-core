@@ -1,0 +1,52 @@
+{
+	"name": "js-vue-utils", 
+	"resources": {
+		"directives": {
+			"sticky-header": {
+				"sticky-header.css": {
+					"url": "directives/sticky-header/sticky-header.css"
+				}, 
+				"sticky-header.js": {
+					"url": "directives/sticky-header/sticky-header.js"
+				}
+			}, 
+			"auto-close.js": {
+				"url": "directives/auto-close.js"
+			}, 
+			"group.js": {
+				"url": "directives/group.js"
+			}, 
+			"timeout.js": {
+				"url": "directives/timeout.js"
+			}, 
+			"route.js": {
+				"url": "directives/route.js"
+			}
+		}, 
+		"vue": {
+			"vue.js": {
+				"url": "vue/vue.js", 
+				"template": false
+			}
+		}, 
+		"cms": {
+			"cms-masterdata.js": {
+				"url": "cms/cms-masterdata.js"
+			}
+		}, 
+		"misc": {
+			"vue2-features.js": {
+				"url": "misc/vue2-features.js"
+			}, 
+			"vue-router.js": {
+				"url": "misc/vue-router.js"
+			}, 
+			"render.js": {
+				"url": "misc/render.js"
+			}, 
+			"observable.js": {
+				"url": "misc/observable.js"
+			}
+		}
+	}
+}

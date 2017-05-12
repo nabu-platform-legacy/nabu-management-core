@@ -1,0 +1,91 @@
+# Fonts 
+font = structure(
+	color: structure(
+		primary: "#000",
+		secondary: "#666",
+		tertiary: "#999",
+		secondaryAccent: "#333",
+		inactive: "rgba(0, 0, 0, 0.32)",
+		disabled: "#ccc",
+		contrast: "#fff",
+		contrastSecondary: "#ccc"
+	), 
+	family: structure(
+		primary: "'Roboto', sans-serif",
+		secondary: "'Libre Baskerville', serif",
+		monospace: "Monospace"
+	))
+	
+link = structure(
+	color: structure(
+		primary: "#0064B4",
+		hover: "#CF0039",
+		contrast: "#cee8f6"
+	))
+
+levels = structure(
+	success: structure(
+		dark: "#4AA32C", 
+		light: "#fff"
+	),
+	info: structure(
+		dark: "#0064B4",
+		light: "#fff",
+		darkAccent: "#005090"
+	),
+	error: structure(
+		dark: "#DA291C", 
+		light: "#fff"
+	),
+	critical: structure(
+		dark: "#FF4136", 
+		light: "#fff"
+	),
+	warning: structure(
+		dark: "#FFDC00", 
+		light: "#fff"
+	),
+	trace: structure(
+		dark: "#0064B4", 
+		light: "#fff"
+	))
+
+# Borders
+border = structure(
+		color: "#bababa",
+		width: "1px",
+		style: "solid",
+		shadow: "0 0 10px 0 rgba(0,0,0,.0785)",
+		shadowTop: "0 -3px 10px 0 rgba(0,0,0,.0785)",
+		shadowRight: "3px 0 10px 0 rgba(0,0,0,.0785)",
+		shadowAccent: "0 1px 4px rgba(0,0,0,.04)"
+	)
+	
+border = structure(border, apply: lambda(border/style + " " + border/width + " " + border/color))
+
+background = structure(
+	color: structure(
+		primary: "#fff",
+		light: "f3f3f3",
+		accent: "#eaeaea",
+		disabled: "#aaa",
+		header: "#F3F3F5",
+		contrast: "#333"
+	))
+
+
+echo(template("
+	.n-default table, .table {
+		border-collapse: collapse;
+		width: 100%;
+	}
+	.n-default table thead, .table thead {
+		background-color: ${background/color/header};
+	}
+	.n-default table th, .table th {
+		font-size: 1rem;
+		line-height: 1.4rem;
+		border-bottom: ${border/apply()};
+		padding: 0.75rem;
+	}
+	"))

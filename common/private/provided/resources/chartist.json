@@ -1,0 +1,17 @@
+{
+	"name": "font-awesome",
+	"resources": {
+		"core": {
+			"javascript": {
+				"chartist.js": {
+					"url": "https://raw.githubusercontent.com/gionkunz/chartist-js/develop/dist/chartist.min.js"
+				}
+			},
+			"css": {
+				"chartist.css": {
+					"url": "https://raw.githubusercontent.com/gionkunz/chartist-js/develop/dist/chartist.min.css"
+				}
+			}
+		}
+	}
+}

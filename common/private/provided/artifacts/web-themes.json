@@ -1,0 +1,16 @@
+{
+	"name": "web-themes", 
+	"resources": {
+		"standard": {
+			"default.glue": {
+				"url": "standard/default.glue"
+			}, 
+			"icons.gcss": {
+				"url": "standard/icons.gcss"
+			}, 
+			"devices.glue": {
+				"url": "standard/devices.glue"
+			}
+		}
+	}
+}

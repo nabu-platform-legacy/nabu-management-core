@@ -1,0 +1,8 @@
+@cache 0
+
+nabu.utils.javascript(target: "repository:nabu.management.core.common:/private/provided/artifacts",
+	bundlePath: "repository:nabu.management.core.common:/private/provided/bundle.json")
+	
+#for (script : repository())
+#	if (script/namespace != null && script/namespace ~ "nabu.management.component.[\w]+.(javascript|js)")
+#		function(script/namespace + "." + script/name)()

@@ -1,0 +1,9 @@
+@cache 0, revalidate
+
+nabu.utils.index(
+	title: "Nabu Management",
+	javascript: server.root() + "resources/javascript/application",
+	css: server.root() + "resources/css/application",
+	target: "repository:nabu.management.core.common:/private/provided/artifacts",
+	staticTarget: "repository:nabu.management.core.common:/private/provided/resources",
+	bundlePath: "repository:nabu.management.core.common:/private/provided/bundle.json")
