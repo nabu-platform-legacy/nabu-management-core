@@ -12,21 +12,21 @@ application.views.Home = Vue.extend({
 				id += "." + dashboard.id;
 			}
 			return id;
+		},
+		sorter: function(a, b) {
+			var i1 = a.index ? a.index : 0;
+			var i2 = b.index ? b.index : 0;
+			return i1 - i2;
+		},
+		render: function(route, element) {
+			this.$services.router.route(route.alias, route.parameters, element, true);
 		}
 	},
 	computed: {
 		dashboards: function() {
 			var dashboards = [];
-			// not the most performant but readable
-			for (var i = 0; i < this.$services.vue.row; i++) {
-				var row = [];
-				for (var j = 0; j < this.$services.vue.dashboards.length; j++) {
-					if (this.$services.vue.dashboards[j].row == i) {
-						row.push(this.$services.vue.dashboards[j]);
-					}
-				}
-				dashboards.push(row);
-			}
+			nabu.utils.arrays.merge(dashboards, this.$services.manager.dashboards());
+			//dashboards.sort(this.sorter);
 			return dashboards;
 		}
 	}

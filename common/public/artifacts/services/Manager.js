@@ -17,6 +17,10 @@ application.definitions.Manager = function Manager($services) {
 	var sorter = function(a, b) {
 		var i1 = a.index ? a.index : 0;
 		var i2 = b.index ? b.index : 0;
+		if (i1 == i2) {
+			i1 = a.counter ? a.counter : 0;
+			i2 = b.counter ? b.counter : 0;
+		}
 		return i1 - i2;
 	};
 	
@@ -28,6 +32,15 @@ application.definitions.Manager = function Manager($services) {
 	this.menu = function(menu) {
 		this.state.menus.push(menu);
 		this.state.menus.sort(sorter);
+	}
+	
+	this.findMenu = function(title) {
+		for (var i = 0; i < this.state.menus.length; i++) {
+			if (this.state.menus[i].title == title) {
+				return this.state.menus[i];
+			}
+		}
+		return null;
 	}
 	
 	this.index = function() {

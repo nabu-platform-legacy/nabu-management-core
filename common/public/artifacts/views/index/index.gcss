@@ -58,8 +58,6 @@
 		flex-grow: 1;
 		position: relative;
 		padding-top: 2.4rem;
-		min-height: calc(100% - 2.4rem);
-		background-color: #eaeaea;
 	}
 	h1.title {
 		text-align: center;
@@ -76,6 +74,17 @@
 		//border-bottom-right-radius: 15px;
 		//border-bottom-left-radius: 15px;
 		box-shadow: 4px 4px 4px 4px #ccc;
+	}
+	h1.subtitle {
+		text-align: center;
+		font-size: 1.2rem;
+		background-color: #eaeaea;
+		border: ${border/apply()};
+		border-style: none none ${border/style} none;
+		box-shadow: 4px 4px 4px 4px #ccc;
+		padding: 0.5rem;
+		margin: 0;
+		text-transform: uppercase;
 	}
 	
 	.page-menu {
@@ -97,6 +106,44 @@
 			width: auto;
 			line-height: 2.5rem;
 			box-shadow: none;
+		}
+		> .actions {
+			position: relative;
+			display: inline-block;
+			
+			.optional {
+				z-index: 10;
+				position: absolute;
+				padding: 1rem;
+				background-color: #fff;
+				border: ${border/apply()};
+				top: 100%;
+				text-align: left;
+				
+				.filter {
+					white-space: nowrap;
+					display: flex;
+					margin: 0.2rem;
+					
+					.label {
+						font-size: 0.9rem;
+						line-height: 2.3rem;
+						margin-right: 0.5rem;
+						width: 8rem;
+						text-align: right;
+						padding-right: 0.5rem;
+						background-color: #eaeaea;
+						&:after {
+							content: ':';
+						}
+					}
+				}
+				.actions {
+					padding: 1rem;
+					text-align: center;
+					width: 100%;
+				}
+			}
 		}
 	}
 	
@@ -193,6 +240,7 @@
 		.n-icon+span {
 			margin-right: 0.5rem;
 		}
+		cursor: pointer;
 	}
 	$button.neutral, button.warning, button.bad, button.good {
 		border: none;
@@ -203,6 +251,47 @@
 			color: #666;
 			background-color: #eaeaea;
 		}
+	}
+	
+	
+	.dashboard {
+		background-color: #fff;
+		width: 33rem;
+		border: solid 1px #CCC;
+		border-radius: 1rem;
+		display: inline-block;
+		margin: 25px;
+		box-shadow: 4px 4px 4px 4px #ccc;
+		transform: scale(1);
+		* {
+			box-shadow: none;
+		}
+		h1 {
+			padding: 10px 0px;
+			margin: 0px;
+			background-color: #fafafa;
+			border-radius: 1rem;
+			border: 1px #eaeafa;
+			border-style: none none solid none;
+			font-size: 1.6rem;
+			font-weight: bold;
+			text-align: center;
+			box-shadow: none;
+		}
+		.dashboard-footer {
+			padding: 10px 0px;
+			margin: 0px;
+			background-color: #fafafa;
+			border-radius: 1rem;
+			border: 1px #eaeafa;
+			border-style: solid none none none;
+		}
+	}
+	.dashboards {
+		display: flex;
+		justify-content: space-around;
+		flex-wrap: wrap;
+		align-items: center;
 	}
 }
 

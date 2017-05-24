@@ -10,8 +10,12 @@ nabu.services.SwaggerClient = function(parameters) {
 	this.swagger = typeof(parameters.definition) == "string" ? JSON.parse(parameters.definition) : parameters.definition;
 	this.operations = {};
 	this.secure = this.swagger.schemes.indexOf("https") >= 0;
-	this.host = this.swagger.host ? (this.secure ? "https://" : "http://") + this.swagger.host : null;
+	this.host = this.swagger.host && parameters.useHost ? (this.secure ? "https://" : "http://") + this.swagger.host : null;
 	this.executor = parameters.executor;
+	this.normalize = parameters.normalize;
+	this.parseError = parameters.parseError;
+	this.remember = parameters.remember;
+	this.remembering = false;
 	
 	if (!this.executor) {
 		if (nabu.utils && nabu.utils.ajax) {
@@ -21,7 +25,7 @@ nabu.services.SwaggerClient = function(parameters) {
 					var contentType = response.getResponseHeader("Content-Type");
 					if (contentType && contentType.indexOf("application/json") >= 0) {
 						response = JSON.parse(response.responseText);
-						if (parameters.definition) {
+						if (parameters.definition && self.normalize) {
 							response = nabu.utils.schema.json.normalize(parameters.definition, response, self.definition.bind(self));
 						}
 					}
@@ -30,11 +34,35 @@ nabu.services.SwaggerClient = function(parameters) {
 					}
 					promise.resolve(response);
 				}, function(error) {
-					var contentType = error.getResponseHeader("Content-Type");
-					if (contentType && contentType.indexOf("application/json") >= 0) {
-						error = JSON.parse(error.responseText);
+					var requireAuthentication = error.status == 401;
+					if (self.parseError) {
+						var contentType = error.getResponseHeader("Content-Type");
+						if (contentType && contentType.indexOf("application/json") >= 0) {
+							error = JSON.parse(error.responseText);
+						}
 					}
-					promise.reject(error);
+					if (requireAuthentication && !parameters.remember && self.remember && !self.remembering) {
+						self.remembering = true;
+						self.remember().then(
+							function() {
+								self.remembering = false;
+								parameters.remember = true;
+								self.executor(parameters).then(
+									function(response) {
+										promise.resolve(response);
+									},
+									function(error) {
+										promise.reject(error);
+									});
+							},
+							function() {
+								self.remembering = false;
+								promise.reject(error);
+							});
+					}
+					else {
+						promise.reject(error);
+					}
 				});
 				return promise;
 			};
