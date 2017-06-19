@@ -1,0 +1,45 @@
+.n-confirm {
+	margin: auto;
+	background-color: ${background/color/primary};
+	box-shadow: 4px 4px 4px 4px #777;
+	width: 30rem;
+	max-width: 90%;
+	
+	.n-confirm-content {
+		width: 23rem;
+		display: inline-block;
+		padding: 2rem;
+		padding-left: 3rem;
+		text-align: left;
+		margin-top: 1rem;
+		color: ${font/color/primary};
+	}
+	.n-confirm-buttons {
+		padding: 1rem;
+		text-align: right;
+		button {
+			margin: 0 1rem;
+		}
+	}
+	.n-confirm-icon {
+		width: 6rem;
+		display: inline-block;
+		padding: 1rem;
+		.n-icon {
+			&:before {
+				font-size: 6rem;
+				padding: 1rem;
+				vertical-align: middle;
+			}
+			&.n-icon-question-circle-o {
+				color: ${levels/info/dark};
+			}
+			&.n-icon-exclamation-triangle {
+				color: ${levels/warning/dark};
+			}
+			&.n-icon-exclamation-circle {
+				color: ${levels/error/dark};
+			}
+		}
+	}
+}

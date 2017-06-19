@@ -1,0 +1,63 @@
+.page-menu {
+	// fffcd6
+	background-color: #fff;
+	padding: 1rem;
+	border: ${border/apply()};
+	border-style: none none ${border/style} none;
+	display: flex;
+	justify-content: center;
+	box-shadow: 4px 4px 4px 4px #ccc;
+
+	h1.title {
+		padding: 0;
+		margin: 0 1rem;
+		background-color: transparent;
+		border: none;
+		display: inline-block;
+		width: auto;
+		line-height: 2.5rem;
+		box-shadow: none;
+	}
+	> .actions {
+		position: relative;
+		display: inline-block;
+		
+		.optional {
+			z-index: 10;
+			position: absolute;
+			padding: 1rem;
+			background-color: #fff;
+			border: ${border/apply()};
+			top: 100%;
+			text-align: left;
+			
+			.filter {
+				white-space: nowrap;
+				display: flex;
+				margin: 0.2rem;
+				padding: 0rem 1rem;
+				
+				.label {
+					font-size: 0.9rem;
+					line-height: 2.3rem;
+					margin-right: 0.5rem;
+					width: 8rem;
+					text-align: right;
+					padding-right: 0.5rem;
+					background-color: #eaeaea;
+					&:after {
+						content: ':';
+					}
+				}
+			}
+			.actions {
+				padding: 1rem;
+				text-align: center;
+				width: 100%;
+			}
+		}
+	}
+	button {
+		margin: 0 0.15rem;
+	}
+}

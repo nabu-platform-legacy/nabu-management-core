@@ -1,0 +1,27 @@
+a.primary {
+	color: ${link/color/primary};
+	&:hover {
+		color: ${link/color/hover};
+	}
+}
+a.secondary {
+	color: ${link/color/secondary};
+	&:hover {
+		color: ${link/color/hoverSecondary};
+	}
+}
+a.tertiary {
+	color: ${link/color/tertiary};
+	&:hover {
+		color: ${link/color/hoverTertiary};
+	}
+}
+.n-default {
+	table {
+		border-collapse: collapse;
+		thead {
+			background-color: ${background/color/secondary};
+			color: ${font/color/secondary};
+		}
+	}
+}

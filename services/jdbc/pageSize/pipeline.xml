@@ -1,0 +1,8 @@
+<structure name="pipeline">
+    <structure name="input">
+        <structure definition="nabu.management.core.configuration" name="configuration"/>
+    </structure>
+    <structure name="output">
+        <field name="pageSize" type="java.lang.Integer"/>
+    </structure>
+</structure>

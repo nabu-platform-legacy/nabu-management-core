@@ -1,0 +1,20 @@
+{
+	"name": "nabu", 
+	"resources": {
+		"main.gcss": {
+			"url": "main.gcss"
+		}, 
+		"form.gcss": {
+			"url": "form.gcss"
+		}, 
+		"variables.glue": {
+			"url": "variables.glue"
+		}, 
+		"index.gcss": {
+			"url": "index.gcss"
+		}, 
+		"misc.gcss": {
+			"url": "misc.gcss"
+		}
+	}
+}

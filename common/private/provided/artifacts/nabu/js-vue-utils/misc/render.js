@@ -17,15 +17,15 @@ nabu.utils.vue.render = function(parameters) {
 	var component = parameters.content;
 	// if we have a return value, we need to add it to the anchor
 	if (component) {
+		if (component instanceof Function) {
+			component = component(element);
+		}
 		// if you return a string, we assume it is a template id
 		if (typeof component == "string" && component.substring(0, 1) == "#") {
 			var extended = Vue.extend({
 				template: component
 			});
 			component = new extended({ data: parameters });
-		}
-		else if (component instanceof Function) {
-			component = component(element);
 		}
 		// a function to complete the appending of the component to the anchor
 		var complete = function(resolvedContent) {
@@ -62,7 +62,7 @@ nabu.utils.vue.render = function(parameters) {
 				}
 			}
 			if (parameters.prepare) {
-				parameters.prepare(element);
+				parameters.prepare(element, component);
 			}
 			// it's a vue component
 			if (component.$appendTo) {
@@ -88,11 +88,14 @@ nabu.utils.vue.render = function(parameters) {
 				}
 			}
 			if (parameters.ready) {
-				parameters.ready();
+				parameters.ready(component);
 			}
 		};
 		// it's a vue component
 		if (component.$mount) {
+			if (parameters.activate) {
+				parameters.activate(component);
+			}
 			// if we have an activate method, call it, it can perform asynchronous actions
 			if (component && component.$options && component.$options.activate) {
 				// if we are going to do asynchronous stuff, have the option for a loader

@@ -1,26 +1,31 @@
 # Fonts 
 font = structure(
 	color: structure(
-		primary: "#000",
+		primary: "#333",
+		accent: "#0064B4",
 		secondary: "#666",
+		accentSecondary: "#333",
 		tertiary: "#999",
-		secondaryAccent: "#333",
-		inactive: "rgba(0, 0, 0, 0.32)",
+		accentTertiary: "#989898",
+		inactive: "#bbb",
 		disabled: "#ccc",
 		contrast: "#fff",
 		contrastSecondary: "#ccc"
 	), 
 	family: structure(
-		primary: "'Roboto', sans-serif",
+		primary: "'Roboto', 'DejaVu Sans', 'Segoe UI', sans-serif",
 		secondary: "'Libre Baskerville', serif",
 		monospace: "Monospace"
 	))
 	
 link = structure(
 	color: structure(
-		primary: "#0064B4",
-		hover: "#CF0039",
-		contrast: "#cee8f6"
+		primary: font/color/accent,
+		hover: font/color/primary,
+		secondary: font/color/accentSecondary,
+		hoverSecondary: font/color/secondary,
+		tertiary: font/color/accentTertiary,
+		hoverTertiary: font/color/tertiary
 	))
 
 levels = structure(
@@ -53,39 +58,26 @@ levels = structure(
 # Borders
 border = structure(
 		color: "#bababa",
+		colorSecondary: "#ccc",
+		colorTertiary: "#aaa",
 		width: "1px",
 		style: "solid",
-		shadow: "0 0 10px 0 rgba(0,0,0,.0785)",
-		shadowTop: "0 -3px 10px 0 rgba(0,0,0,.0785)",
-		shadowRight: "3px 0 10px 0 rgba(0,0,0,.0785)",
-		shadowAccent: "0 1px 4px rgba(0,0,0,.04)"
+		radius: "15px"
 	)
 	
-border = structure(border, apply: lambda(border/style + " " + border/width + " " + border/color))
+border = structure(border, 
+	apply: lambda(border/style + " " + border/width + " " + border/color),
+	shadow: lambda("0 0 10px 0 rgba(0,0,0,.0785)"))
 
 background = structure(
 	color: structure(
 		primary: "#fff",
-		light: "f3f3f3",
-		accent: "#eaeaea",
+		accent: "#fafafa",
+		secondary: "#eaeaea",
+		accentSecondary: "#f3f3f3",
+		tertiary: "#333",
+		accentTertiary: "#f7f7f7",
 		disabled: "#aaa",
 		header: "#F3F3F5",
 		contrast: "#333"
 	))
-
-
-echo(template("
-	.n-default table, .table {
-		border-collapse: collapse;
-		width: 100%;
-	}
-	.n-default table thead, .table thead {
-		background-color: ${background/color/header};
-	}
-	.n-default table th, .table th {
-		font-size: 1rem;
-		line-height: 1.4rem;
-		border-bottom: ${border/apply()};
-		padding: 0.75rem;
-	}
-	"))

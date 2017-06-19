@@ -136,6 +136,16 @@
 				"url": "form/form-utils.js"
 			}
 		}, 
+		"display": {
+			"secret": {
+				"secret.tpl": {
+					"url": "display/secret/secret.tpl"
+				}, 
+				"secret.js": {
+					"url": "display/secret/secret.js"
+				}
+			}
+		}, 
 		"containers": {
 			"wizard": {
 				"wizard.js": {
@@ -146,6 +156,17 @@
 				}, 
 				"wizard.gcss": {
 					"url": "containers/wizard/wizard.gcss"
+				}
+			}, 
+			"collapsible": {
+				"collapsible.gcss": {
+					"url": "containers/collapsible/collapsible.gcss"
+				}, 
+				"collapsible.js": {
+					"url": "containers/collapsible/collapsible.js"
+				}, 
+				"collapsible.tpl": {
+					"url": "containers/collapsible/collapsible.tpl"
 				}
 			}
 		}, 
@@ -172,6 +193,17 @@
 				}, 
 				"messages.tpl": {
 					"url": "misc/messages/messages.tpl"
+				}
+			}, 
+			"paging": {
+				"paging.tpl": {
+					"url": "misc/paging/paging.tpl"
+				}, 
+				"paging.gcss": {
+					"url": "misc/paging/paging.gcss"
+				}, 
+				"paging.js": {
+					"url": "misc/paging/paging.js"
 				}
 			}, 
 			"info": {

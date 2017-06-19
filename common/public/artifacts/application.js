@@ -13,6 +13,10 @@ application.configuration = {
 
 application.views = {};
 
+Vue.component("n-table-view", {
+	template: "<button @click='$services.manager.tableView(!$services.manager.tableView())'><span class='n-icon' :class=\"{'n-icon-th': !$services.manager.tableView(), 'n-icon-list': $services.manager.tableView()}\"></span></button>"
+})
+
 application.initialize = function() {
 	application.services = new nabu.services.ServiceManager(
 		function(services) {
@@ -27,11 +31,15 @@ application.initialize = function() {
 				methods: {
 					formatDateTime: function(value) {
 						return value ? new Date(value).toLocaleString() : null;
+					},
+					formatDate: function(value) {
+						return value ? new Date(value).toLocaleDateString() : null;
 					}
 				}
 			});	
 		},
 		nabu.services.Q,
+		nabu.services.Cookies,
 		application.definitions.Swagger,
 		application.definitions.Manager,
 		function router($services) {

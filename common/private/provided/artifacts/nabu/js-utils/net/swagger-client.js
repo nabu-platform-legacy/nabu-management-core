@@ -14,7 +14,7 @@ nabu.services.SwaggerClient = function(parameters) {
 	this.executor = parameters.executor;
 	this.normalize = parameters.normalize;
 	this.parseError = parameters.parseError;
-	this.remember = parameters.remember;
+	this.rememberHandler = parameters.remember;
 	this.remembering = false;
 	
 	if (!this.executor) {
@@ -25,8 +25,8 @@ nabu.services.SwaggerClient = function(parameters) {
 					var contentType = response.getResponseHeader("Content-Type");
 					if (contentType && contentType.indexOf("application/json") >= 0) {
 						response = JSON.parse(response.responseText);
-						if (parameters.definition && self.normalize) {
-							response = nabu.utils.schema.json.normalize(parameters.definition, response, self.definition.bind(self));
+						if (parameters.definition) {
+							response = nabu.utils.schema.json.normalize(parameters.definition, response, self.definition.bind(self), true, self.normalize);
 						}
 					}
 					else if (contentType && contentType.indexOf("text/html") >= 0) {
@@ -41,9 +41,9 @@ nabu.services.SwaggerClient = function(parameters) {
 							error = JSON.parse(error.responseText);
 						}
 					}
-					if (requireAuthentication && !parameters.remember && self.remember && !self.remembering) {
+					if (requireAuthentication && !parameters.remember && self.rememberHandler && !self.remembering) {
 						self.remembering = true;
-						self.remember().then(
+						self.rememberHandler().then(
 							function() {
 								self.remembering = false;
 								parameters.remember = true;
@@ -69,6 +69,23 @@ nabu.services.SwaggerClient = function(parameters) {
 		}
 		else {
 			throw "No executor";
+		}
+	}
+	
+	this.remember = function() {
+		if (self.rememberHandler) {
+			self.remembering = true;
+			return self.rememberHandler().then(
+				function() {
+					self.remembering = false;
+				},
+				function() {
+					self.remembering = false;
+				}
+			);
+		}
+		else {
+			throw "Remember not supported";
 		}
 	}
 
@@ -101,9 +118,8 @@ nabu.services.SwaggerClient = function(parameters) {
 		}
 		var operation = self.operations[name];
 		var path = operation.path;
-		if (self.swagger.basePath) {
-			path = self.swagger.basePath + "/" + path;
-			path = path.replace(new RegExp("[/]+"), "/")
+		if (self.swagger.basePath && self.swagger.basePath != "/") {
+			path = self.swagger.basePath + (path.substring(0, 1) == "/" ? "" : "/") + path;
 		}
 		if (path.substring(0, 1) != "/") {
 			path = "/" + path;
@@ -143,7 +159,7 @@ nabu.services.SwaggerClient = function(parameters) {
 									throw "Unsupported collection format: " + collectionFormat;
 								}
 							}
-							result += value[j];
+							result += encodeURIComponent(value[j]);
 						}
 						value = result;
 					}
@@ -151,17 +167,19 @@ nabu.services.SwaggerClient = function(parameters) {
 				if (operation.parameters[i].in == "path") {
 					path = path.replace(new RegExp("\{[\\s]*" + operation.parameters[i].name + "[^}]*\}"), value);
 				}
-				else if (operation.parameters[i].in == "query") {
-					query[operation.parameters[i].name] = value;
-				}
-				else if (operation.parameters[i].in == "header") {
-					headers[operation.parameters[i].name] = value;
-				}
-				else if (operation.parameters[i].in == "body") {
-					data = value;
-				}
-				else {
-					throw "Invalid 'in': " + operation.parameters[i].in;
+				else if (value != null && value != "" && typeof(value) != "undefined") {
+					if (operation.parameters[i].in == "query") {
+						query[operation.parameters[i].name] = value;
+					}
+					else if (operation.parameters[i].in == "header") {
+						headers[operation.parameters[i].name] = value;
+					}
+					else if (operation.parameters[i].in == "body") {
+						data = value;
+					}
+					else {
+						throw "Invalid 'in': " + operation.parameters[i].in;
+					}
 				}
 			}
 		}
@@ -170,12 +188,12 @@ nabu.services.SwaggerClient = function(parameters) {
 			if (query[key] instanceof Array) {
 				for (var i = 0; i < query[key].length; i++) {
 					path += path.indexOf("?") >= 0 ? "&" : "?";
-					path += key + "=" + query[key][i];
+					path += encodeURIComponent(key) + "=" + encodeURIComponent(query[key][i]);
 				}
 			}
 			else {
 				path += path.indexOf("?") >= 0 ? "&" : "?";
-				path += key + "=" + query[key];
+				path += encodeURIComponent(key) + "=" + encodeURIComponent(query[key]);
 			}
 		});
 		

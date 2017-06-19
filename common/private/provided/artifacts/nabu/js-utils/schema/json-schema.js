@@ -49,6 +49,9 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 		if (typeof(value) === "boolean") {
 			return value;
 		}
+		else if (typeof(value) == "undefined" || value == null) {
+			return null;
+		}
 		else {
 			return !!value;
 		}
@@ -87,7 +90,7 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 	}
 };
 
-nabu.utils.schema.json.normalize = function(definition, value, resolver) {
+nabu.utils.schema.json.normalize = function(definition, value, resolver, createNew, recursivelyCreateNew) {
 	if (definition.$ref) {
 		if (resolver) {
 			definition = resolver(definition.$ref);
@@ -97,7 +100,12 @@ nabu.utils.schema.json.normalize = function(definition, value, resolver) {
 		}
 	}
 	if (typeof(value) == "undefined") {
-		return nabu.utils.schema.json.instance(definition, resolver);
+		if (createNew) {
+			return nabu.utils.schema.json.instance(definition, resolver);
+		}
+		else {
+			return null;
+		}
 	}
 	else if (definition.type == "object") {
 		if (definition.properties) {
@@ -106,7 +114,7 @@ nabu.utils.schema.json.normalize = function(definition, value, resolver) {
 					value[key] = nabu.utils.schema.json.instance(definition.properties[key], resolver);
 				}
 				else {
-					value[key] = nabu.utils.schema.json.normalize(definition.properties[key], value[key], resolver);
+					value[key] = nabu.utils.schema.json.normalize(definition.properties[key], value[key], resolver, recursivelyCreateNew, recursivelyCreateNew);
 				}
 			}
 		}
@@ -117,7 +125,7 @@ nabu.utils.schema.json.normalize = function(definition, value, resolver) {
 		}
 		for (var i = 0; i < value.length; i++) {
 			if (value[i] && definition.items) {
-				value[i] = nabu.utils.schema.json.normalize(definition.items, value[i], resolver);
+				value[i] = nabu.utils.schema.json.normalize(definition.items, value[i], resolver, recursivelyCreateNew, recursivelyCreateNew);
 			}
 		}
 	}

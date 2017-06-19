@@ -1,16 +1,13 @@
 {
-	"name": "web-themes", 
+	"name": "nabu-theme", 
 	"resources": {
-		"standard": {
-			"default.glue": {
-				"url": "standard/default.glue"
-			}, 
-			"icons.gcss": {
-				"url": "standard/icons.gcss"
-			}, 
-			"devices.glue": {
-				"url": "standard/devices.glue"
-			}
+		"basic.json": {
+			"url": "basic.json",
+			"type": "bundle"
+		},
+		"nabu.json": {
+			"url": "nabu/bundle.json",
+			"type": "bundle"
 		}
 	}
 }

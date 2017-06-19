@@ -18,3 +18,7 @@ orientation = structure(
 		portrait: "and (orientation: portrait)",
 		landscape: "and (orientation: landscape)"
 	)
+	
+media = lambda
+	string [] parameters ?= null
+	# TODO

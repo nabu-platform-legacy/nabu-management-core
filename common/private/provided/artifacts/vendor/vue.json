@@ -22,6 +22,12 @@
 			"timeout.js": {
 				"url": "directives/timeout.js"
 			}, 
+			"css.js": {
+				"url": "directives/css.js"
+			}, 
+			"focus.js": {
+				"url": "directives/focus.js"
+			}, 
 			"route.js": {
 				"url": "directives/route.js"
 			}
@@ -38,6 +44,20 @@
 			}
 		}, 
 		"misc": {
+			"prompt": {
+				"confirm.gcss": {
+					"url": "misc/prompt/confirm.gcss"
+				}, 
+				"confirm.tpl": {
+					"url": "misc/prompt/confirm.tpl"
+				}, 
+				"prompt.gcss": {
+					"url": "misc/prompt/prompt.gcss"
+				}, 
+				"prompt.js": {
+					"url": "misc/prompt/prompt.js"
+				}
+			}, 
 			"vue2-features.js": {
 				"url": "misc/vue2-features.js"
 			}, 

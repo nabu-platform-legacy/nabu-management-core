@@ -1,0 +1,17 @@
+{
+	"name": "basic", 
+	"resources": {
+		"variables.glue": {
+			"url": "basic/variables.glue"
+		},
+		"devices.glue": {
+			"url": "basic/devices.glue"
+		},
+		"icons.gcss": {
+			"url": "basic/icons.gcss"
+		},
+		"default.gcss": {
+			"url": "basic/default.gcss"
+		}
+	}
+}

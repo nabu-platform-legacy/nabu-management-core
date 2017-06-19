@@ -34,6 +34,9 @@ Vue.mixin({
 			if (this.$el && this.$el.parentNode) {
 				this.$el.parentNode.removeChild(this.$el);
 			}
+		},
+		$redirect: function(url) {
+			window.location = url;
 		}
 	},
 	// re-add the ready lifecycle state

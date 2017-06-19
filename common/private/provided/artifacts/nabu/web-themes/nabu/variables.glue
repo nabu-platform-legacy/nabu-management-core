@@ -1,0 +1,10 @@
+border = border + structure(shadow: lambda("4px 4px 4px 4px #ccc"))
+
+background = background + structure(
+	color: structure(
+		primary: "#eaebed",
+		accentPrimary: "#fafafa",
+		secondary: "#fff",
+		accentSecondary: "#ddd",
+		tertiary: "#333",
+		accentTertiary: "#666"))

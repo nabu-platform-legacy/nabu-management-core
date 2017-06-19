@@ -1,0 +1,16 @@
+<sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" disabled="false" id="6e10f89a-64bf-4be1-99ef-d10ebb057b55">
+	<steps xsi:type="be.nabu.libs.services.vm.step.Switch" disabled="false" id="beb2efec-8f58-474b-9407-649d5c47da69" query="input/configuration/pageSize">
+		<steps xsi:type="be.nabu.libs.services.vm.step.Map" disabled="false" label="null" id="d69ac1c0-e8f9-4eb4-ab2c-128d0f9e7994">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link" disabled="false" id="b33da22d-9c8a-4625-9ed5-d5e71421e8c5" optional="false" mask="false" fixedValue="true">
+				<from>50</from>
+				<to>output/pageSize</to>
+			</steps>
+		</steps>
+		<steps xsi:type="be.nabu.libs.services.vm.step.Map" disabled="false" id="9d1ef3ec-e9e4-4cc3-b2a8-4dca39946a3a">
+			<steps xsi:type="be.nabu.libs.services.vm.step.Link" disabled="false" id="332ac74b-15ee-41ca-8413-b7d0c4a7ab1e" optional="false" mask="false" fixedValue="false">
+				<from>input/configuration/pageSize</from>
+				<to>output/pageSize</to>
+			</steps>
+		</steps>
+	</steps>
+</sequence>

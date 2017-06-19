@@ -8,7 +8,11 @@ application.definitions.Manager = function Manager($services) {
 		dashboards: [],
 		menus: [],
 		// start at 1, everything "unknown" is 0
-		counter: 1
+		counter: 1,
+		connections: null,
+		dialects: null,
+		connection: null,
+		tableView: $services.cookies.get("tableView", "false") == "true"
 	};
 	
 	// make it watchable
@@ -53,5 +57,45 @@ application.definitions.Manager = function Manager($services) {
 	
 	this.menus = function() {
 		return this.state.menus;
+	}
+	
+	this.connection = function() {
+		if (arguments.length > 0) {
+			this.state.connection = arguments[0];
+			$services.cookies.set("connectionId", this.state.connection);
+		}
+		return this.state.connection;
+	}
+	
+	this.connections = function() {
+		return this.state.connections;
+	}
+	
+	this.dialects = function() {
+		return this.state.dialects;
+	}
+	
+	this.tableView = function() {
+		if (arguments.length > 0) {
+			this.state.tableView = arguments[0];
+			$services.cookies.set("tableView", this.state.tableView);
+		}
+		return this.state.tableView;
+	}
+	
+	this.$initialize = function() {
+		return $services.q.defer($services.swagger.execute("nabu.management.core.rest.connections.list").then(function(connectionList) {
+			self.state.connections = connectionList.ids ? connectionList.ids : [];
+			self.state.connections.sort();
+			self.state.dialects = connectionList.dialects ? connectionList.dialects : [];
+			self.state.dialects.sort();
+			var previousConnection = $services.cookies.get("connectionId");
+			if (previousConnection && self.state.connections.indexOf(previousConnection) >= 0) {
+				self.state.connection = previousConnection;
+			}
+			else {
+				self.state.connection = self.state.connections ? self.state.connections[0] : null;
+			}
+		}), self);
 	}
 };

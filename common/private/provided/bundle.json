@@ -18,6 +18,10 @@
 			}
 		},
 		"nabu": {
+			"web-themes.json": {
+				"type": "bundle",
+				"url": "file:/home/alex/files/workspaces/javascript/web-themes/nabu.json"
+			},
 			"js-utils.json": {
 				"type": "bundle",
 				"url": "file:/home/alex/files/workspaces/javascript/js-utils/bundle.json"
@@ -30,11 +34,6 @@
 			"web-components.json": {
 				"type": "bundle",
 				"url": "file:/home/alex/files/workspaces/javascript/web-components/bundle.json"
-			},
-			"web-themes.json": {
-				"type": "bundle",
-				"url": "file:/home/alex/files/workspaces/javascript/web-themes/bundle.json",
-				"includes": ["standard"]
 			}
 		}
 	}

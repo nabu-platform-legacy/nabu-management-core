@@ -97,7 +97,7 @@ nabu.utils.ajax = function(parameters) {
 	if (parameters.parameters) {
 		var tmp = "";
 		for (var key in parameters.parameters) {
-			tmp += (tmp == "" ? "" : "&") + key + "=" + encodeURIComponent(parameters.parameters[key]);
+			tmp += (tmp == "" ? "" : "&") + encodeURIComponent(key) + "=" + encodeURIComponent(parameters.parameters[key]);
 		}
 		// if it's a get or something else with data attached, append them to
 		// the url, this assumes no "?"
@@ -205,7 +205,7 @@ nabu.utils.ajax = function(parameters) {
 	}
 
 	// need to add these headers for post
-	if (parameters.method.toUpperCase() == "POST" || parameters.method.toUpperCase() == "PUT" || parameters.method.toUpperCase() == "DELETE") {
+	if (parameters.method.toUpperCase() == "POST" || parameters.method.toUpperCase() == "PUT" || parameters.method.toUpperCase() == "DELETE" || parameters.method.toUpperCase() == "PATCH") {
 		// if we are sending an object as data, jsonify it
 		if (parameters.data && typeof(parameters.data) == "object" && !(parameters.data instanceof File)) {
 			parameters.data = JSON.stringify(parameters.data);
