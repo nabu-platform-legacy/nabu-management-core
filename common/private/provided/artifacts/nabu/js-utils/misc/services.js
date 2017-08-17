@@ -7,6 +7,7 @@ if (!nabu.services) { nabu.services = {}; }
 nabu.services.ServiceManager = function() {
 	var self = this;
 	this.$definitions = [];
+	
 	for (var i = 0; i < arguments.length; i++) {
 		this.$definitions.push(arguments[i]);
 	}
@@ -19,6 +20,7 @@ nabu.services.ServiceManager = function() {
 		if (!(services instanceof Array)) {
 			services = [services];
 		}
+		
 		var promises = [];
 		
 		var initializeSingle = function(instance, name) {
@@ -41,18 +43,31 @@ nabu.services.ServiceManager = function() {
 		};
 		
 		for (var i = 0; i < services.length; i++) {
-			var instance = new services[i](self);
-			var name = services[i].name 
-				? services[i].name.substring(0, 1).toLowerCase() + services[i].name.substring(1) 
-				: null;
-			if (name) {
-				self[name] = instance;
+			if (services[i] instanceof Function) {
+				var instance = new services[i](self);
+				var name = services[i].name 
+					? services[i].name.substring(0, 1).toLowerCase() + services[i].name.substring(1) 
+					: null;
+				if (name) {
+					self[name] = instance;
+				}
+				else {
+					console.warn("Unnamed service", services[i]);
+				}
+				if (instance.$initialize) {
+					initializeSingle(instance, name);	
+				}
 			}
 			else {
-				console.warn("Unnamed service", services[i]);
-			}
-			if (instance.$initialize) {
-				initializeSingle(instance, name);	
+				var names = Object.keys(services[i]);
+				for (var j = 0; j < names.length; j++) {
+					var instance = new services[i][names[j]](self);
+					var name = names[j].substring(0, 1).toLowerCase() + names[j].substring(1);
+					self[name] = instance;
+					if (instance.$initialize) {
+						initializeSingle(instance, name);
+					}
+				}
 			}
 		}
 		return new nabu.utils.promises(promises);

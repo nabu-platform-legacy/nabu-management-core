@@ -1,5 +1,4 @@
-// this directive adds functionality to a component so it autocloses if you click anywhere else
-// additionally you can add specific "auto-close" attributes to certain elements inside that should also close the element
+// adds or removes css class based on event (default click)
 Vue.directive("css", {
 	bind: function(element, binding) {
 		if (binding.value) {

@@ -58,6 +58,10 @@ application.initialize = function() {
 						$services.vue.route = newRoute.alias;
 						// reset scroll
 						document.body.scrollTop = 0;
+					},
+					leave: function() {
+						// reset quick menu
+						$services.manager.quickmenu([]);
 					}
 				});
 			}

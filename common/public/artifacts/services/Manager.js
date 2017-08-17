@@ -12,6 +12,7 @@ application.definitions.Manager = function Manager($services) {
 		connections: null,
 		dialects: null,
 		connection: null,
+		quickmenu: [],
 		tableView: $services.cookies.get("tableView", "false") == "true"
 	};
 	
@@ -81,6 +82,14 @@ application.definitions.Manager = function Manager($services) {
 			$services.cookies.set("tableView", this.state.tableView);
 		}
 		return this.state.tableView;
+	}
+	
+	this.quickmenu = function() {
+		if (arguments.length > 0) {
+			this.state.quickmenu.splice(0, this.state.quickmenu.length);
+			nabu.utils.arrays.merge(this.state.quickmenu, arguments[0]);
+		}
+		return this.state.quickmenu;
 	}
 	
 	this.$initialize = function() {

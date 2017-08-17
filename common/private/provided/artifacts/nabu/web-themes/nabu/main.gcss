@@ -27,7 +27,7 @@ body {
 	}
 }
 
-button {
+$button, a.button {
 	padding: 0.7rem 1.5rem;
 	border: none;
 	font-weight: bold;
@@ -128,7 +128,7 @@ p.message {
 .row {
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: space-around;
+	justify-content: center;
 	align-items: flex-start;
 	
 	.table-header {
@@ -166,6 +166,7 @@ p.message {
 				background-color: #fafafa;
 			}
 			margin: 0;
+
 			border-style: none solid solid solid;
 			> * {
 				flex-grow: 1;
@@ -205,7 +206,6 @@ p.message {
 				.value {
 					text-align: center;
 					font-size: 0.7rem;
-					white-space: nowrap;
 					color: #333;
 				}
 				&.last {
@@ -243,7 +243,7 @@ p.message {
 		flex-grow: 1;
 		flex-basis: 0;
 		position: relative;
-		button {
+		$button, a.button {
 			position: absolute;
 			padding: 0.4rem;
 			right: 0;
@@ -276,12 +276,11 @@ $h1, h2 {
 
 .card {
 	border: ${border/apply()};
-	margin: 1rem 0rem;
-	margin-bottom: 0;
+	margin: 1rem 1rem;
 	max-width: 33rem;
 	box-shadow: ${border/shadow()};
 	background-color: ${background/color/secondary};
-	button {
+	$button, a.button {
 		padding: 0.7rem;
 		top: 0.7rem;
 		font-size: 0.8rem;
@@ -317,11 +316,11 @@ $h1, h2 {
 		text-transform: uppercase;
 		border: ${border/apply()};
 		border-style: none none solid none;
-		button {
+		$button, a.button {
 			margin-left: 0.5rem;
 		}
 		position: relative;
-		button {
+		$button, a.button {
 			position: absolute;
 			right: 1rem;
 		}
@@ -333,7 +332,7 @@ $h1, h2 {
 		margin: 0;
 		overflow: hidden;
 		position: relative;
-		button {
+		$button, a.button {
 			margin: 0 0.7rem;
 		}
 	}
@@ -408,7 +407,7 @@ $h1, h2 {
 				padding-left: 0.5rem;
 				border-color: #eaeaea;
 			}
-			button {
+			$button, a.button {
 				top: 0.4rem;
 				position: absolute;
 				right: 0;
@@ -439,12 +438,13 @@ $h1, h2 {
 }
 
 .tag {
-	background-color: #efefef;
-	font-size: 0.7rem;
+	background-color: #e2e2e2;
+	font-size: 0.55rem;
 	text-transform: uppercase;
-	padding: 0.3rem 0.7rem;
+	padding: 0.18rem 0.7rem;
 	font-weight: bold;
 	margin: 0 0.7rem;
+	display: inline-block;
 }
 
 .n-prompt-content {
@@ -462,7 +462,7 @@ section {
 	> .actions {
 		padding: 1rem;
 		text-align: right;
-		button {
+		$button, a.button {
 			margin: 0 1rem;
 		}
 	}

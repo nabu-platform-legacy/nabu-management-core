@@ -87,8 +87,22 @@
 			}
 		}
 		.icons {
+			.n-icon {
+				font-weight: normal;
+			}
 			> * {
 				margin-left: 0.3rem;
+			}
+			.quickmenu {
+				display: inline-block;
+				border: ${border/apply()}
+				border-style: none solid none none;
+				padding-right: 0.6rem;
+				border-color: #aaa;
+				border-width: 2px;
+				button {
+					margin-left: 0.3rem;
+				}
 			}
 		}
 	}
@@ -162,7 +176,7 @@
 		text-transform: uppercase;
 	}
 	
-	table {
+	table.classic {
 		box-shadow: ${border/shadow()};
 		margin: 20 auto;
 		width: 90%;

@@ -12,6 +12,12 @@ nabu.utils.vue.render = function(parameters) {
 	var anchor = typeof(parameters.target) === "object" ? parameters.target : nabu.utils.anchors.find(parameters.target);
 	if (!anchor) {
 		anchor = document.getElementById(parameters.target);
+		if (!anchor && parameters.target == "body") {
+			anchor = document.body;
+		}
+	}
+	if (!anchor) {
+		throw "Target not found: " + parameters.target + " in: " + document.body.innerHTML;
 	}
 	var element = anchor.$el ? anchor.$el : anchor;
 	var component = parameters.content;
@@ -81,7 +87,7 @@ nabu.utils.vue.render = function(parameters) {
 					element.setAttribute("template", id);
 					var template = document.getElementById(id);
 					for (var i = 0; i < template.attributes.length; i++) {
-						if (template.attributes[i].name != "id") {
+						if (template.attributes[i].name != "id" && template.attributes[i].value != "x/templates") {
 							element.setAttribute(template.attributes[i].name, template.attributes[i].value);
 						}
 					}
