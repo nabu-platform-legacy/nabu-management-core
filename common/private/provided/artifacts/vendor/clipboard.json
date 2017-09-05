@@ -1,0 +1,8 @@
+{
+	"name": "clipboard",
+	"resources": {
+		"clipboard.js": {
+			"url": "https://raw.githubusercontent.com/zenorocha/clipboard.js/master/dist/clipboard.js"
+		}
+	}
+}

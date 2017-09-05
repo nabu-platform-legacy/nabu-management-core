@@ -3,6 +3,8 @@
     <method>GET</method>
     <path>/api/connection</path>
     <role>manager</role>
-    <output>nabu.cms.core.management.masterdata.types.connectionList</output>
+    <output>nabu.management.core.types.connectionList</output>
     <configurationType>nabu.management.core.configuration</configurationType>
+    <lenient>false</lenient>
+    <decamelify>false</decamelify>
 </restInterface>

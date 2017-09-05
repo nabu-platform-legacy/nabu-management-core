@@ -15,6 +15,10 @@
 			"chartist.json": {
 				"type": "bundle",
 				"url": "file:/home/alex/files/workspaces/javascript/web-modules/chartist.json"
+			},
+			"clipboard.json": {
+				"type": "bundle",
+				"url": "file:/home/alex/files/workspaces/javascript/web-modules/clipboard.json"
 			}
 		},
 		"nabu": {

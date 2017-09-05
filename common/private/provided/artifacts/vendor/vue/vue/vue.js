@@ -6,7 +6,6 @@ Slightly customized version of vue, changes are:
 - updated $emit to check for events {} like in vue1 (line 1917)
 - line 406: check that not undefined (should check wherever it is being called but not sure which line is causing issues)
 - line 1499: disable proxy when doing server-side rendering, it is not correctly implemented in htmlunit
-- line 8285: renamed "native" which is reserved
 
 **/
 
@@ -8283,8 +8282,8 @@ var modifierCode = {
   right: genGuard("'button' in $event && $event.button !== 2")
 };
 
-function genHandlers (events, native1) {
-  var res = native1 ? 'nativeOn:{' : 'on:{';
+function genHandlers (events, native) {
+  var res = native ? 'nativeOn:{' : 'on:{';
   for (var name in events) {
     res += "\"" + name + "\":" + (genHandler(name, events[name])) + ",";
   }

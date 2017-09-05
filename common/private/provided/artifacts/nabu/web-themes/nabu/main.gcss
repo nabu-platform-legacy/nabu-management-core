@@ -27,6 +27,18 @@ body {
 	}
 }
 
+.n-input-date {
+	table {
+		border-color: ${border/color};
+		tr {
+			td {
+				background-color: ${background/color/secondary};
+				border-color: ${border/color};
+			}
+		}
+	}
+}
+
 $button, a.button {
 	padding: 0.7rem 1.5rem;
 	border: none;

@@ -18,8 +18,8 @@ Vue.component("n-table-view", {
 })
 
 application.initialize = function() {
-	application.services = new nabu.services.ServiceManager(
-		function(services) {
+	application.services = new nabu.services.ServiceManager({
+		mixin: function(services) {
 			Vue.mixin({
 				// inject some services for use
 				computed: {
@@ -38,11 +38,11 @@ application.initialize = function() {
 				}
 			});	
 		},
-		nabu.services.Q,
-		nabu.services.Cookies,
-		application.definitions.Swagger,
-		application.definitions.Manager,
-		function router($services) {
+		q: nabu.services.Q,
+		cookies: nabu.services.Cookies,
+		swagger: application.definitions.Swagger,
+		manager: application.definitions.Manager,
+		router: function router($services) {
 			this.$initialize = function() {
 				return new nabu.services.VueRouter({
 					useHash: true,
@@ -62,11 +62,12 @@ application.initialize = function() {
 					leave: function() {
 						// reset quick menu
 						$services.manager.quickmenu([]);
-					}
+					},
+					services: $services
 				});
 			}
 		},
-		function vue() {
+		vue: function vue() {
 			this.$initialize = function() {
 				return new Vue({
 					el: "body",
@@ -76,6 +77,6 @@ application.initialize = function() {
 				});
 			}
 		},
-		application.routes);
+		routes: application.routes});
 	return application.services.$initialize();
 };

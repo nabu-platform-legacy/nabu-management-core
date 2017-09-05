@@ -4,12 +4,28 @@
 		"core": {
 			"javascript": {
 				"chartist.js": {
-					"url": "https://raw.githubusercontent.com/gionkunz/chartist-js/develop/dist/chartist.min.js"
+					"url": "https://raw.githubusercontent.com/gionkunz/chartist-js/develop/dist/chartist.js"
 				}
 			},
 			"css": {
 				"chartist.css": {
 					"url": "https://raw.githubusercontent.com/gionkunz/chartist-js/develop/dist/chartist.min.css"
+				}
+			}
+		},
+		"plugins": {
+			"legend.js": {
+				"url": "https://raw.githubusercontent.com/CodeYellowBV/chartist-plugin-legend/master/chartist-plugin-legend.js"
+			},
+			"axis-title.js": {
+				"url": "https://raw.githubusercontent.com/alexstanbury/chartist-plugin-axistitle/master/dist/chartist-plugin-axistitle.js"
+			},
+			"tooltip": {
+				"tooltip.js": {
+					"url": "https://raw.githubusercontent.com/tmmdata/chartist-plugin-tooltip/master/dist/chartist-plugin-tooltip.js"
+				},
+				"tooltip.css": {
+					"url": "https://raw.githubusercontent.com/tmmdata/chartist-plugin-tooltip/master/dist/chartist-plugin-tooltip.css"
 				}
 			}
 		}

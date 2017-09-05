@@ -18,14 +18,15 @@
 	.n-form-component {
 		display: flex;
 		margin: 1rem;
-		*:nth-child(1) {
-			flex-grow: 0.3;
-			flex-basis: 0;
-		}
-		*:nth-child(2) {
-			flex-grow: 1;
-			flex-basis: 0;
-		}
+// unknown @ 2017-08-22
+//		*:nth-child(1) {
+//			flex-grow: 0.3;
+//			flex-basis: 0;
+//		}
+//		*:nth-child(2) {
+//			flex-grow: 1;
+//			flex-basis: 0;
+//		}
 	}
 	
 	footer {

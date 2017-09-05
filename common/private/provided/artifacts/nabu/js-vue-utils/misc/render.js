@@ -109,8 +109,21 @@ nabu.utils.vue.render = function(parameters) {
 					parameters.loader(element);
 				}
 				if (component.$options.activate instanceof Array) {
-					// TODO: loop over them and use a combined promise
-					component.$options.activate[0].call(component, complete);
+					var promises = [];
+					var process = function(activation) {
+						var promise = new nabu.utils.promise();
+						promises.push(promise);
+						var done = function(result) {
+							promise.resolve(result);
+						};
+						activation.call(component, done);
+					}
+					for (var i = 0; i < component.$options.activate.length; i++) {
+						process(component.$options.activate[i]);
+					}
+					new nabu.utils.promises(promises).then(function(x) {
+						complete();
+					});
 				}
 				else {
 					component.$options.activate.call(component, complete);

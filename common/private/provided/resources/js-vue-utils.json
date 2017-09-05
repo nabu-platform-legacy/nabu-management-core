@@ -58,6 +58,9 @@
 					"url": "misc/prompt/prompt.js"
 				}
 			}, 
+			"service.js": {
+				"url": "misc/service.js"
+			}, 
 			"vue2-features.js": {
 				"url": "misc/vue2-features.js"
 			}, 

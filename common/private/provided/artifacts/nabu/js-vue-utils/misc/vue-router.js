@@ -4,10 +4,10 @@ if (!nabu.services) { nabu.services = {}; }
 if (!nabu.state) { nabu.state = {}; }
 if (!nabu.utils) { nabu.utils = {}; }
 
-nabu.services.VueRouter = function(parameters) {
+nabu.services.VueRouter = function(routerParameters) {
 	var self = this;
 	this.components = {};
-	this.router = new nabu.services.Router(parameters);
+	this.router = new nabu.services.Router(routerParameters);
 
 	this.route = function(alias, parameters, anchor, mask) {
 		self.router.route(alias, parameters, anchor, mask);
@@ -27,33 +27,69 @@ nabu.services.VueRouter = function(parameters) {
 		if (route.enter) {
 			var originalEnter = route.enter;
 			route.enter = function(anchorName, parameters, previousRoute, previousParameters) {
-				route.$lastInstance = nabu.utils.vue.render({
-					target: anchorName,
-					content: originalEnter(parameters, previousRoute, previousParameters),
-					ready: function() {
-						if (route.ready) {
-							route.ready(parameters, previousRoute, previousParameters);
-						}
-					},
-					prepare: function(element) {
-						// enrich the anchor with contextually relevant information
-						element.setAttribute("route", route.alias);
+				console.log("entering", anchorName, route.alias);
+				var render = function() {
+					if (!route.$lastInstances) {
+						route.$lastInstances = {};
 					}
+					route.$lastInstances[anchorName] = nabu.utils.vue.render({
+						target: anchorName,
+						content: originalEnter(parameters, previousRoute, previousParameters),
+						ready: function() {
+							if (route.ready) {
+								route.ready(parameters, previousRoute, previousParameters);
+							}
+						},
+						prepare: function(element) {
+							// enrich the anchor with contextually relevant information
+							element.setAttribute("route", route.alias);
+						}
+					});
+					return route.$lastInstances[anchorName];
+				};
+				var promises = [];
+				// initialize any lazy services
+				if (route.services && routerParameters.services) {
+					for (var i = 0; i < route.services.length; i++) {
+						var name = route.services[i].split(".");
+						var target = routerParameters.services;
+						for (var j = 0; j < name.length; j++) {
+							if (!target) {
+								throw "Could not find service: " + route.services[i];
+							}
+							target = target[name[j]];
+						}
+						if (!target) {
+							throw "Could not find service '" + route.services[i] + "' for route: " + route.alias;
+						}
+						if (target.$lazy && !target.lazyInitialized) {
+							target.lazyInitialized = new Date();
+							var result = target.$lazy();
+							if (result.then) {
+								promises.push(result);
+							}
+						}
+					}
+				}
+				var promise = new nabu.utils.promise();
+				new nabu.utils.promises(promises).then(function() {
+					promise.resolve(render());
 				});
-				return route.$lastInstance;
+				return promise;
 			};
 		}
 		var originalLeave = route.leave;
 		route.leave = function(anchorName, currentParameters, newRoute, newParameters) {
-			if (route.$lastInstance && route.$lastInstance.$options.beforeDestroy) {
-				if (route.$lastInstance.$options.beforeDestroy instanceof Array) {
-					// TODO: loop over them and use a combined promise
-					route.$lastInstance.$options.beforeDestroy[0].call(route.$lastInstance);
+			if (route.$lastInstances && route.$lastInstances[anchorName] && route.$lastInstances[anchorName].$options.beforeDestroy) {
+				if (route.$lastInstances[anchorName].$options.beforeDestroy instanceof Array) {
+					for (var i = 0; i < route.$lastInstances[anchorName].$options.beforeDestroy.length; i++) {
+						route.$lastInstances[anchorName].$options.beforeDestroy[i](route.$lastInstances[anchorName]);
+					}
 				}
 				else {
-					route.$lastInstance.$options.beforeDestroy.call(route.$lastInstance);
+					route.$lastInstances[anchorName].$options.beforeDestroy(route.$lastInstances[anchorName]);
 				}
-				route.$lastInstance = null;
+				route.$lastInstances[anchorName] = null;
 			}
 			var anchor = nabu.utils.anchors.find(anchorName);
 			if (anchor) {
