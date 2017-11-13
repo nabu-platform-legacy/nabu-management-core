@@ -3,7 +3,6 @@
 	background-color: ${background/color/primary};
 	box-shadow: 4px 4px 4px 4px #777;
 	width: 30rem;
-	max-width: 90%;
 	
 	.n-confirm-content {
 		width: 23rem;

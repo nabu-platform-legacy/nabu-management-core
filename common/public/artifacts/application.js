@@ -54,6 +54,15 @@ application.initialize = function() {
 							}
 						});
 					},
+					chosen: function(anchor, newRoute, newParameters, oldRoute, oldParameters) {
+						// redirect to the default page if any is set
+						if (newRoute.alias == "home") {
+							var defaultPath = "${when(application.configuration("nabu.management.core.configuration")/defaultPath == null, "", application.configuration("nabu.management.core.configuration")/defaultPath)}";
+							if (defaultPath) {
+								return $services.router.router.findRoute(defaultPath);
+							}
+						}	
+					},
 					enter: function(anchor, newRoute, newParameters, oldRoute, oldParameters, newRouteReturn) {
 						$services.vue.route = newRoute.alias;
 						// reset scroll

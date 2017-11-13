@@ -6,6 +6,8 @@ Slightly customized version of vue, changes are:
 - updated $emit to check for events {} like in vue1 (line 1917)
 - line 406: check that not undefined (should check wherever it is being called but not sure which line is causing issues)
 - line 1499: disable proxy when doing server-side rendering, it is not correctly implemented in htmlunit
+- expose initWatch and initComputed in util, need to be able to initialize versions that wait for asynchronous data to be loaded
+	- line 2741: make sure we don't overwrite the computed watchers because we now have a two-phase computed property
 
 **/
 
@@ -2737,7 +2739,10 @@ function initData (vm) {
 var computedWatcherOptions = { lazy: true };
 
 function initComputed (vm, computed) {
-  var watchers = vm._computedWatchers = Object.create(null);
+	if (!vm._computedWatchers) {
+		vm._computedWatchers = Object.create(null);
+	}
+  var watchers = vm._computedWatchers;
 
   for (var key in computed) {
     var userDef = computed[key];
@@ -4066,6 +4071,8 @@ function initGlobalAPI (Vue) {
   // NOTE: these are not considered part of the public API - avoid relying on
   // them unless you are aware of the risk.
   Vue.util = {
+  	initComputed: initComputed,
+  	initWatch: initWatch,
     warn: warn,
     extend: extend,
     mergeOptions: mergeOptions,

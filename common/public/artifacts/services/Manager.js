@@ -184,7 +184,7 @@ application.definitions.Manager = nabu.services.VueService(Vue.extend({
 		connection: function() {
 			if (arguments.length > 0) {
 				this.state.connection = arguments[0];
-				this.$services.cookies.set("connectionId", this.state.connection);
+				this.$services.cookies.set("connectionId", this.state.connection, 365);
 			}
 			return this.state.connection;
 		},
@@ -197,7 +197,7 @@ application.definitions.Manager = nabu.services.VueService(Vue.extend({
 		tableView: function() {
 			if (arguments.length > 0) {
 				this.state.tableView = arguments[0];
-				this.$services.cookies.set("tableView", this.state.tableView);
+				this.$services.cookies.set("tableView", this.state.tableView, 365);
 			}
 			return this.state.tableView;
 		},

@@ -1,0 +1,6 @@
+@csrf none
+
+if (!user.authenticated() && !user.remember())
+	nabu.utils.login("Nabu Management")
+else
+	redirect(server.root())

@@ -459,13 +459,12 @@ $h1, h2 {
 	display: inline-block;
 }
 
-.n-prompt-content {
-	width: 100%;
+.n-prompt-container {
+	padding: 1rem;
+	width: 90%;
+	margin: 1rem auto;
+	box-shadow: 4px 4px 4px 4px #777;
 	> section {
-		padding: 1rem;
-		width: 90%;
-		margin: 1rem auto;
-		box-shadow: 4px 4px 4px 4px #777;
 		background-color: ${background/color/primary};
 	}
 }

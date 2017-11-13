@@ -20,6 +20,21 @@ nabu.utils.vue.render = function(parameters) {
 		throw "Target not found: " + parameters.target + " in: " + document.body.innerHTML;
 	}
 	var element = anchor.$el ? anchor.$el : anchor;
+	if (!parameters.append) {
+		var destroy = function(element) {
+			for (var i = 0; i < element.childNodes.length; i++) {
+				// first recursively destroy any vms that might exist
+				if (element.childNodes[i].nodeType == 1) {
+					destroy(element.childNodes[i]);
+				}
+			}
+			// then destroy the vm itself (if there is one)
+			if (element.__vue__ && element.__vue__.$destroy) {
+				element.__vue__.$destroy();
+			}
+		}
+	}
+	destroy(element);
 	var component = parameters.content;
 	// if we have a return value, we need to add it to the anchor
 	if (component) {
@@ -35,6 +50,13 @@ nabu.utils.vue.render = function(parameters) {
 		}
 		// a function to complete the appending of the component to the anchor
 		var complete = function(resolvedContent) {
+			// call the activated hook before we start mounting
+			if (component.$options.activated) {
+				var activated = component.$options.activated instanceof Array ? component.$options.activated : [component.$options.activated];
+				for (var i = 0; i < activated.length; i++) {
+					activated[i].call(component);
+				}
+			}
 			if (component.$mount) {
 				if (!component.$parent) {
 					var possible = element;
@@ -44,6 +66,15 @@ nabu.utils.vue.render = function(parameters) {
 					if (possible && possible.__vue__) {
 						component.$parent = possible.__vue__;
 					}
+				}
+			}
+			// unless we explicitly want to append content, wipe the current content
+			if (!parameters.append) {
+				if (anchor.clear) {
+					anchor.clear();
+				}
+				else if (element) {
+					nabu.utils.elements.clear(element);
 				}
 			}
 			var mounted = null;
@@ -57,15 +88,6 @@ nabu.utils.vue.render = function(parameters) {
 
 			if (resolvedContent) {
 				component = resolvedContent;
-			}
-			// unless we explicitly want to append content, wipe the current content
-			if (!parameters.append) {
-				if (anchor.clear) {
-					anchor.clear();
-				}
-				else if (element) {
-					nabu.utils.elements.clear(element);
-				}
 			}
 			if (parameters.prepare) {
 				parameters.prepare(element, component);
@@ -103,31 +125,43 @@ nabu.utils.vue.render = function(parameters) {
 				parameters.activate(component);
 			}
 			// if we have an activate method, call it, it can perform asynchronous actions
-			if (component && component.$options && component.$options.activate) {
+			if (component && component.$options && (component.$options.activate || component.$options.initialize)) {
 				// if we are going to do asynchronous stuff, have the option for a loader
 				if (parameters.loader) {
 					parameters.loader(element);
 				}
-				if (component.$options.activate instanceof Array) {
-					var promises = [];
-					var process = function(activation) {
-						var promise = new nabu.utils.promise();
-						promises.push(promise);
-						var done = function(result) {
-							promise.resolve(result);
-						};
-						activation.call(component, done);
+				var promises = [];
+				var process = function(method, promises) {
+					var promise = new nabu.utils.promise();
+					promises.push(promise);
+					var done = function(result) {
+						promise.resolve(result);
+					};
+					method.call(component, done);
+				}
+				if (component.$options.initialize instanceof Array) {
+					for (var i = 0; i < component.$options.initialize.length; i++) {
+						process(component.$options.initialize[i], promises);
 					}
-					for (var i = 0; i < component.$options.activate.length; i++) {
-						process(component.$options.activate[i]);
+				}
+				else if (component.$options.initialize) {
+					process(component.$options.initialize, promises);
+				}
+				// we wait for all initialization to be done before the activate kicks in
+				new nabu.utils.promises(promises).then(function() {
+					promises = [];
+					if (component.$options.activate instanceof Array) {
+						for (var i = 0; i < component.$options.activate.length; i++) {
+							process(component.$options.activate[i], promises);
+						}
+					}
+					else if (component.$options.activate) {
+						process(component.$options.activate, promises);
 					}
 					new nabu.utils.promises(promises).then(function(x) {
 						complete();
 					});
-				}
-				else {
-					component.$options.activate.call(component, complete);
-				}
+				});
 			}
 			else {
 				complete();

@@ -23,19 +23,33 @@ nabu.services.VueService = function(component, parameters) {
 					for (var i = 0; i < instance.$options.activate.length; i++) {
 						process(instance.$options.activate[i]);
 					}
-					return $services.q.defer($services.q.all(promises), instance);
+					var resultingPromise = $services.q.defer();
+					$services.q.all(promises).then(function(x) {
+						var resultingService = null;
+						if (x) {
+							for (var i = 0; i < x.length; i++) {
+								if (x[i]) {
+									resultingService = x[i];
+								}
+							}
+						}
+						resultingPromise.resolve(resultingService ? resultingService : instance);
+					}, resultingPromise);
+					return resultingPromise;
 				}
 				else {
 					var promise = $services.q.defer();
 					var done = function(result) {
-						promise.resolve(result);
+						promise.resolve(result ? result : instance);
 					};
 					instance.$options.activate.call(instance, done);
-					return $services.q.defer(promise, instance);
+					return promise;
 				}
 			}
 			else {
-				return instance;
+				var promise = $services.q.defer();
+				promise.resolve(instance);
+				return promise;
 			}
 		};
 		
@@ -43,11 +57,43 @@ nabu.services.VueService = function(component, parameters) {
 			var instance = new component({ data: { "$services": $services }});
 			if (parameters && parameters.lazy) {
 				instance.$lazy = function() {
-					return activate(instance);
+					if (!instance.$lazyInitialized) {
+						instance.$lazyInitialized = new Date();
+						return activate(instance);
+					}
+					else {
+						var promise = $services.q.defer();
+						promise.resolve(instance);
+						return promise;
+					}
 				};
 			}
 			if (!parameters || !parameters.lazy) {
-				return activate(instance);
+				// if we have service dependencies, make sure they are loaded first
+				if (instance.$options.services && instance.$options.services.length) {
+					var promises = [];
+					for (var i = 0; i < instance.$options.services.length; i++) {
+						var promise = $services.$promises[instance.$options.services[i]];
+						if (!promise) {
+							throw "Could not find service dependency: " + instance.$options.services[i];
+						}
+						promises.push(promise);
+					}
+					var promise = new nabu.utils.promise();
+					promise.stage(instance);
+					new nabu.utils.promises(promises).then(function() {
+						// create a new instance
+						// this service may have dependencies in the form of watchers, computed properties... to remote services
+						// these are not set up correctly if they are not available at creation time
+						// @2017-11-07: we use promise staging now to preemtively send back the instance preventing the need for double creation
+						//instance = new component({ data: { "$services": $services }});
+						activate(instance).then(promise, promise);
+					});
+					return promise;
+				}
+				else {
+					return activate(instance);
+				}
 			}
 			else {
 				return instance;
@@ -73,7 +119,7 @@ nabu.services.VueService = function(component, parameters) {
 
 // mixin an activation sequence for lazy service loading
 Vue.mixin({
-	activate: function(done) {
+	initialize: function(done) {
 		if (this.$options.services) {
 			if (!this.$services) {
 				throw "No service provider found";
@@ -89,7 +135,6 @@ Vue.mixin({
 					target = target[name[j]];
 				}
 				if (!target.$lazyInitialized && target.$lazy) {
-					target.$lazyInitialized = new Date();
 					var result = target.$lazy();
 					if (result.then) {
 						promises.push(result); 

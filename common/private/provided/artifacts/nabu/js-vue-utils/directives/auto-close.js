@@ -7,7 +7,7 @@ Vue.directive("auto-close", {
 			if (!close && element.contains(event.target)) {
 				var find = event.target;
 				while (find != element) {
-					if (find.hasAttribute("auto-close")) {
+					if (find.hasAttribute("auto-close") && find.getAttribute("auto-close") != "false") {
 						close = true;
 						break;
 					}

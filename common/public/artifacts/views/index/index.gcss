@@ -1,3 +1,16 @@
+.n-prompt {
+	.n-prompt-container {
+		width: 100%;
+		overflow: auto;
+		
+		// https://stackoverflow.com/questions/33454533/cant-scroll-to-top-of-flex-item-that-is-overflowing-container
+		// couldn't see top of large contents
+		//justify-content: center;
+		//align-items: center;
+		
+	}
+}
+
 .index {
 	min-height: 100%;
 	display: flex;

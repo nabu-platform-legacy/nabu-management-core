@@ -17,6 +17,8 @@
 			@input="updateValue"
 			:items="items"
 			:nillable="nillable"
+			:timeout="timeout"
+			:autoclose="autoclose"
 			ref="combo">
 		
 			<div class="n-form-combo-bottom" slot="bottom">
@@ -26,5 +28,6 @@
 			</div>
 			
 		</n-input-combo>
+		<slot name="bottom"></slot>
 	</div>
 </template>

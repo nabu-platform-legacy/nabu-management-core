@@ -1,0 +1,6 @@
+# only makes sense if an authenticator is configured
+if (application.authenticator() != null)
+	url = server.root() + "login"
+	if (!user.authenticated() && request.target() != url)
+		response.header("Original-Target", request.target())
+		response.target(url)

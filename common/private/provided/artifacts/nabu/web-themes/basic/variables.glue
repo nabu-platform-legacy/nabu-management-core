@@ -79,5 +79,7 @@ background = structure(
 		accentTertiary: "#f7f7f7",
 		disabled: "#aaa",
 		header: "#F3F3F5",
-		contrast: "#333"
+		contrast: "#333",
+		active: "#eaeaea",
+		hover: "#f3f3f3"
 	))

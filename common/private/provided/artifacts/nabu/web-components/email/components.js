@@ -26,11 +26,11 @@ Vue.component("e-wrapper", {
 });
 
 Vue.component("e-container", {
-	template: "<table class=\"container\"><tr><td><slot></slot></td></tr></table>"
+	template: "<table class=\"container\"><tbody><tr><td><slot></slot></td></tr></tbody></table>"
 });
 
 Vue.component("e-row", {
-	template: "<table class=\"row\"><tr><th><slot></slot></th></tr></table>"
+	template: "<table class=\"row\"><tbody><tr><slot></slot></tr></tbody></table>"
 });
 
 Vue.component("e-columns", {
@@ -84,7 +84,7 @@ Vue.component("e-item", {
 });
 
 Vue.component("e-spacer", {
-	template: "<table class=\"spacer\"><tbody><tr><td height=\"100px\" style=\"font-size:100px;line-height:100px;\">&#xA0;</td></tr></tbody></table>"
+	template: "<table class=\"spacer\"><tbody><tr><td height=\"35px\" style=\"font-size:35px;line-height:35px;\">&#xA0;</td></tr></tbody></table>"
 });
 
 Vue.component("e-callout", {

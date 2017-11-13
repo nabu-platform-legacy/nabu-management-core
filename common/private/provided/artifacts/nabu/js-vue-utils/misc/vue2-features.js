@@ -1,4 +1,64 @@
+var vi = function(element) {
+	if (typeof(element) == "string") {
+		element = document.querySelector(element);
+	}
+	while (element && !element.__vue__) {
+		element = element.parentNode;
+	}
+	return element ? element.__vue__ : null;
+}
+
+Vue.config.optionMergeStrategies.activate = function (toVal, fromVal) {
+	var result = [];
+	if (fromVal instanceof Array) {
+		nabu.utils.arrays.merge(result, fromVal);
+	}
+	else if (fromVal) {
+		result.push(fromVal);
+	}
+	if (toVal instanceof Array) {
+		nabu.utils.arrays.merge(result, toVal);
+	}
+	else if (toVal) {
+		result.push(toVal);
+	}
+	return result;
+}
+
+Vue.config.optionMergeStrategies.activated = function (toVal, fromVal) {
+	var result = [];
+	if (fromVal instanceof Array) {
+		nabu.utils.arrays.merge(result, fromVal);
+	}
+	else if (fromVal) {
+		result.push(fromVal);
+	}
+	if (toVal instanceof Array) {
+		nabu.utils.arrays.merge(result, toVal);
+	}
+	else if (toVal) {
+		result.push(toVal);
+	}
+	return result;
+}
+
 Vue.mixin({
+	// the activate() routine is done by the time we are mounted
+	// start computed and watchers that depend on that now
+	activated: function() {
+		if (this.$options.asyncComputed) {
+			var computed = this.$options.asyncComputed instanceof Array ? this.$options.asyncComputed : [this.$options.asyncComputed]; 		
+			for (var i = 0; i < computed.length; i++) {
+				Vue.util.initComputed(this, computed[i]);
+			}
+		}
+		if (this.$options.asyncWatch) {
+			var watchers = this.$options.asyncWatch instanceof Array ? this.$options.asyncWatch : [this.$options.asyncWatch]; 		
+			for (var i = 0; i < watchers.length; i++) {
+				Vue.util.initWatch(this, watchers[i]);
+			}
+		}
+	},
 	methods: {
 		// re-add the $appendTo, the router depends on it
 		$appendTo: function(element) {

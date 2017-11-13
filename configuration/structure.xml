@@ -1,4 +1,5 @@
 <structure name="core">
     <field minOccurs="0" name="connectionFilter" type="java.lang.String"/>
     <field minOccurs="0" name="pageSize" type="java.lang.Integer"/>
+    <field minOccurs="0" name="defaultPath" type="java.lang.String"/>
 </structure>

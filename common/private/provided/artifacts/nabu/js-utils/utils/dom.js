@@ -43,7 +43,12 @@ nabu.utils.elements = {
 			element.removeChild(element.firstChild);
 		}
 	},
-	clean: function(element, allowedTags, tagsToRemove) {
+	sanitize: function(element) {
+		var allowedTags = ["a", "b", "i", "u", "em", "strong", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "p", "strong"];
+		var allowedAttributes = ["style"];
+		return nabu.utils.elements.clean(element, allowedTags, null, allowedAttributes);
+	},
+	clean: function(element, allowedTags, tagsToRemove, allowedAttributes, attributesToRemove) {
 		var returnAsString = false;
 		if (typeof(element) == "string") {
 			returnAsString = true;
@@ -62,13 +67,24 @@ nabu.utils.elements = {
 			removeAttributes(element);
 			for (var i = element.childNodes.length - 1; i >= 0; i--) {
 				if (element.childNodes[i].nodeType == 1) {
-					if (tagsToRemove.indexOf(element.childNodes[i].nodeName.toLowerCase()) >= 0) {
+					if (tagsToRemove && tagsToRemove.indexOf(element.childNodes[i].nodeName.toLowerCase()) >= 0) {
 						element.removeChild(element.childNodes[i]);
 					}
 					else {
 						recursiveStrip(element.childNodes[i]);
-						if (allowedTags.indexOf(element.childNodes[i].nodeName.toLowerCase()) < 0) {
+						if (!allowedTags || allowedTags.indexOf(element.childNodes[i].nodeName.toLowerCase()) < 0) {
 							var child = element.childNodes[i];
+							if (allowedAttributes || attributesToRemove) {
+								for (var j = child.attributes.length - 1; j >= 0; j--) {
+									var attr = child.attributes.item(j);
+									if (allowedAttributes && allowedAttributes.indexOf(attr.name) < 0) {
+										child.removeAttribute(attr.name);
+									}
+									else if (attributesToRemove && attributesToRemove.indexOf(attr.name) >= 0) {
+										child.removeAttribute(attr.name);
+									}
+								}
+							}
 							var insertRef = child;
 							for (var j = child.childNodes.length - 1; j >= 0; j--) {
 								insertRef = element.insertBefore(child.childNodes[j], insertRef);
@@ -187,7 +203,7 @@ nabu.utils.elements = {
 			for (var i = rules.length - 1; i >= 0; i--) {
 				try {
 					if (matches.call(element, rules[i].selectorText)) {
-						result.push(rules[i].cssText);
+						result.push({ selector: rules[i].selectorText, rule: rules[i].cssText});
 					}
 				}
 				catch(e) {
@@ -196,6 +212,20 @@ nabu.utils.elements = {
 				}
 			}
 		}
-		return result;
+		var maxLength = function(selector) {
+			var max = 0;
+			var parts = selector.split(/[\s]*,[\s]*/);
+			for (var i = 0; i < parts.length; i++) {
+				if (matches.call(element, parts[i]) && parts[i].length > max) {
+					max = parts[i].length;
+				}
+			}
+			return max;
+		}
+		// we sort from least specific to most specific so if we print them out, the most specific will be last and "win"
+		result.sort(function(a, b) {
+			return maxLength(a.selector) - maxLength(b.selector);
+		});
+		return result.map(function(x) { return x.rule });
 	}
 };

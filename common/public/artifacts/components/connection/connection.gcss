@@ -20,3 +20,11 @@
 		}
 	}
 }
+
+@media ${devices/phone} {
+	.connection {
+		.content {
+			display: none;
+		}
+	}
+}

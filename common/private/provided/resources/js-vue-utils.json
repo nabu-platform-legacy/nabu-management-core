@@ -10,6 +10,9 @@
 					"url": "directives/sticky-header/sticky-header.js"
 				}
 			}, 
+			"action.js": {
+				"url": "directives/action.js"
+			}, 
 			"auto-close.js": {
 				"url": "directives/auto-close.js"
 			}, 
@@ -21,6 +24,12 @@
 			}, 
 			"timeout.js": {
 				"url": "directives/timeout.js"
+			}, 
+			"content.js": {
+				"url": "directives/content.js"
+			}, 
+			"fixed-header.js": {
+				"url": "directives/fixed-header.js"
 			}, 
 			"css.js": {
 				"url": "directives/css.js"

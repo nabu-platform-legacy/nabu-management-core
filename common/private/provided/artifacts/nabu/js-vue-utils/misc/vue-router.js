@@ -10,7 +10,7 @@ nabu.services.VueRouter = function(routerParameters) {
 	this.router = new nabu.services.Router(routerParameters);
 
 	this.route = function(alias, parameters, anchor, mask) {
-		self.router.route(alias, parameters, anchor, mask);
+		return self.router.route(alias, parameters, anchor, mask);
 	}
 	this.routeInitial = function(anchor) {
 		this.router.routeInitial(anchor);
@@ -23,18 +23,36 @@ nabu.services.VueRouter = function(routerParameters) {
 	this.template = function(alias, parameters) {
 		return self.router.template(alias, parameters);
 	};
+	this.get = function(alias) {
+		return self.router.get(alias);
+	};
+	this.list = function() {
+		return self.router.list();
+	};
 	this.create = function(route) {
 		if (route.enter) {
 			var originalEnter = route.enter;
-			route.enter = function(anchorName, parameters, previousRoute, previousParameters) {
-				console.log("entering", anchorName, route.alias);
+			route.enter = function(anchorName, parameters, previousRoute, previousParameters, currentRoute) {
 				var render = function() {
 					if (!route.$lastInstances) {
 						route.$lastInstances = {};
 					}
+					var component = null;
+					if (originalEnter) {
+						component = originalEnter(parameters, previousRoute, previousParameters, currentRoute);
+					}
+					else if (route.component) {
+						if (typeof(route.component) == "string") {
+							component = eval(route.component);
+							component = new component({ data: parameters });
+						}
+						else {
+							component = new route.component({ data: parameters });
+						}
+					}
 					route.$lastInstances[anchorName] = nabu.utils.vue.render({
 						target: anchorName,
-						content: originalEnter(parameters, previousRoute, previousParameters),
+						content: component,
 						ready: function() {
 							if (route.ready) {
 								route.ready(parameters, previousRoute, previousParameters);
@@ -80,14 +98,18 @@ nabu.services.VueRouter = function(routerParameters) {
 		}
 		var originalLeave = route.leave;
 		route.leave = function(anchorName, currentParameters, newRoute, newParameters) {
-			if (route.$lastInstances && route.$lastInstances[anchorName] && route.$lastInstances[anchorName].$options.beforeDestroy) {
+			if (route.$lastInstances && route.$lastInstances[anchorName] && route.$lastInstances[anchorName].$destroy) {
+				route.$lastInstances[anchorName].$destroy();
+				route.$lastInstances[anchorName] = null;
+			}
+			else if (route.$lastInstances && route.$lastInstances[anchorName] && route.$lastInstances[anchorName].$options.beforeDestroy) {
 				if (route.$lastInstances[anchorName].$options.beforeDestroy instanceof Array) {
 					for (var i = 0; i < route.$lastInstances[anchorName].$options.beforeDestroy.length; i++) {
-						route.$lastInstances[anchorName].$options.beforeDestroy[i](route.$lastInstances[anchorName]);
+						route.$lastInstances[anchorName].$options.beforeDestroy[i].call(route.$lastInstances[anchorName]);
 					}
 				}
 				else {
-					route.$lastInstances[anchorName].$options.beforeDestroy(route.$lastInstances[anchorName]);
+					route.$lastInstances[anchorName].$options.beforeDestroy.call(route.$lastInstances[anchorName]);
 				}
 				route.$lastInstances[anchorName] = null;
 			}

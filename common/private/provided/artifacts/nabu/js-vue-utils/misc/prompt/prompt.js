@@ -3,8 +3,6 @@ if (!nabu.utils) { nabu.utils = {}; }
 if (!nabu.utils.vue) { nabu.utils.vue = {}; }
 
 nabu.utils.vue.prompt = function(render) {
-	var content = document.createElement("div");
-	content.setAttribute("class", "n-prompt-content");
 	
 	var root = document.createElement("div");
 	root.setAttribute("class", "n-prompt");
@@ -13,8 +11,6 @@ nabu.utils.vue.prompt = function(render) {
 	var container = document.createElement("div");
 	container.setAttribute("class", "n-prompt-container");
 	root.appendChild(container);
-	
-	container.appendChild(content);
 	
 	escapeListener = function(event) {
 		if (event.keyCode == 27) {
@@ -25,8 +21,8 @@ nabu.utils.vue.prompt = function(render) {
 	};
 	document.addEventListener("keydown", escapeListener);
 
-	container.addEventListener("click", function(event) {
-		if (event.target == container || event.target == content) {
+	root.addEventListener("click", function(event) {
+		if (event.target == container) {
 			document.body.removeChild(root);
 			document.removeEventListener("keydown", escapeListener);
 			promise.reject();
@@ -34,7 +30,7 @@ nabu.utils.vue.prompt = function(render) {
 	});
 	
 	var promise = new nabu.utils.promise();
-	this.$render({ target: content, content: render, activate: function(component) {
+	this.$render({ target: container, content: render, activate: function(component) {
 		component.$resolve = function(object) {
 			document.body.removeChild(root);
 			document.removeEventListener("keydown", escapeListener);
