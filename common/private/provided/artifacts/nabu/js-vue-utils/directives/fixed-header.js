@@ -8,7 +8,14 @@ Vue.directive("fixed-header", {
 		element.style.transition = "position 0.3s linear, top 0.3s linear";
 		var y = window.pageYOffset + element.getBoundingClientRect().top;
 		var height = element.getBoundingClientRect().height;
+		var toggled = false;
+		var div = document.createElement("div");
+		var inserted = false;
 		element["$n-fixed-header-listener"] = function(event) {
+			if (!inserted && element.parentNode) {
+				inserted = true;
+				element.parentNode.insertBefore(div, element);
+			}
 			if (height == 0) {
 				height = element.getBoundingClientRect().height;
 			}
@@ -17,13 +24,16 @@ Vue.directive("fixed-header", {
 			}
 			// this kicks in the first time it goes out of view
 			if (element.getBoundingClientRect().top < 0 && element.style.position != "fixed") {
+				div.style.height = height + "px";
 				element.style.position = "fixed";
 				element.style.top = "0px";
 				element.style.marginBottom = height + "px";
 				element.setAttribute("fixed", "true");
+				toggled = true;
 			}
 			// turn it off if we scroll up again
-			else if (element.style.position == "fixed" && window.pageYOffset < y - height) {
+			else if (element.style.position == "fixed" && window.pageYOffset < y) {
+				div.style.height = "0px";
 				element.style.position = originalPosition;
 				element.style.marginBottom = originalMargin;
 				element.removeAttribute("fixed");

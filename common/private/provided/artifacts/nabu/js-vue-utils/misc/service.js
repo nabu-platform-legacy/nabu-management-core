@@ -25,6 +25,13 @@ nabu.services.VueService = function(component, parameters) {
 					}
 					var resultingPromise = $services.q.defer();
 					$services.q.all(promises).then(function(x) {
+						// call the activated hook
+						if (instance.$options.activated) {
+							var activated = instance.$options.activated instanceof Array ? instance.$options.activated : [instance.$options.activated];
+							for (var i = 0; i < activated.length; i++) {
+								activated[i].call(instance);
+							}
+						}
 						var resultingService = null;
 						if (x) {
 							for (var i = 0; i < x.length; i++) {
@@ -55,6 +62,24 @@ nabu.services.VueService = function(component, parameters) {
 		
 		this.$initialize = function() {
 			var instance = new component({ data: { "$services": $services }});
+			if (instance.$options.clear) {
+				instance.$clear = function() {
+					var clears = instance.$options.clear instanceof Array ? instance.$options.clear : [instance.$options.clear];
+					var promises = [];
+					var callClear = function(clear) {
+						var promise = new nabu.utils.promise();
+						var done = function() {
+							promise.resolve();
+						};
+						clear.call(instance);
+						return promise;
+					};
+					for (var i = 0; i < clears.length; i++) {
+						promises.push(callClear(clears[i]));
+					}
+					return new nabu.utils.promises(promises);
+				}
+			}
 			if (parameters && parameters.lazy) {
 				instance.$lazy = function() {
 					if (!instance.$lazyInitialized) {

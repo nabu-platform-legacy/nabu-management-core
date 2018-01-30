@@ -1,8 +1,8 @@
 devices = structure(
-		iphone4: "only screen and (min-device-width: 320px) and (max-device-width: 480px) and (-webkit-min-device-pixel-ratio: 2)",
-		iphone5: "only screen and (min-device-width: 320px) and (max-device-width: 568px) and (-webkit-min-device-pixel-ratio: 2)",
-		iphone6: "only screen and (min-device-width: 375px) and (max-device-width: 667px) and (-webkit-min-device-pixel-ratio: 2)",
-		iphone6plus: "only screen and (min-device-width: 414px) and (max-device-width: 736px) and (-webkit-min-device-pixel-ratio: 3)"
+		iphone4: "only screen and (min-width: 320px) and (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2)",
+		iphone5: "only screen and (min-width: 320px) and (max-width: 568px) and (-webkit-min-device-pixel-ratio: 2)",
+		iphone6: "only screen and (min-width: 375px) and (max-width: 667px) and (-webkit-min-device-pixel-ratio: 2)",
+		iphone6plus: "only screen and (min-width: 414px) and (max-width: 736px) and (-webkit-min-device-pixel-ratio: 3)"
 	)
 devices = structure(devices,
 		iphone7: devices/iphone6,
@@ -10,9 +10,9 @@ devices = structure(devices,
 	)
 # should add other...
 
-devices = structure(devices, phone: "only screen and (min-device-width:320px) and (max-device-width: 960px)")
-devices = structure(devices, tablet: "only screen and (min-device-width: 641px) and (max-device-width: 961px)")
-devices = structure(devices, desktop: "only screen and (min-device-width: 961px)")
+devices = structure(devices, phone: "only screen and (min-width:320px) and (max-width: 960px)")
+devices = structure(devices, tablet: "only screen and (min-width: 641px) and (max-width: 961px)")
+devices = structure(devices, desktop: "only screen and (min-width: 961px)")
 	
 orientation = structure(
 		portrait: "and (orientation: portrait)",

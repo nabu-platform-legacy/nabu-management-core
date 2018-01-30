@@ -8,6 +8,7 @@ Slightly customized version of vue, changes are:
 - line 1499: disable proxy when doing server-side rendering, it is not correctly implemented in htmlunit
 - expose initWatch and initComputed in util, need to be able to initialize versions that wait for asynchronous data to be loaded
 	- line 2741: make sure we don't overwrite the computed watchers because we now have a two-phase computed property
+- 7291: added decoding support for quotation mark
 
 **/
 
@@ -7293,10 +7294,11 @@ var decodingMap = {
   '&gt;': '>',
   '&quot;': '"',
   '&amp;': '&',
-  '&#10;': '\n'
+  '&#10;': '\n',
+  '&#39;': '\''
 };
-var encodedAttr = /&(?:lt|gt|quot|amp);/g;
-var encodedAttrWithNewLines = /&(?:lt|gt|quot|amp|#10);/g;
+var encodedAttr = /&(?:lt|gt|quot|amp|#39);/g;
+var encodedAttrWithNewLines = /&(?:lt|gt|quot|amp|#10|#39);/g;
 
 function decodeAttr (value, shouldDecodeNewlines) {
   var re = shouldDecodeNewlines ? encodedAttrWithNewLines : encodedAttr;

@@ -67,6 +67,9 @@
 					"url": "misc/prompt/prompt.js"
 				}
 			}, 
+			"pane.js": {
+				"url": "misc/pane.js"
+			}, 
 			"service.js": {
 				"url": "misc/service.js"
 			}, 
@@ -81,6 +84,9 @@
 			}, 
 			"observable.js": {
 				"url": "misc/observable.js"
+			}, 
+			"fetcher.js": {
+				"url": "misc/fetcher.js"
 			}
 		}
 	}

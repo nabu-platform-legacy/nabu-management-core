@@ -3,9 +3,11 @@
 	background-color: ${background/color/primary};
 	box-shadow: 4px 4px 4px 4px #777;
 	width: 30rem;
+	max-width: 90vw;
 	
 	.n-confirm-content {
 		width: 23rem;
+		max-width: 90vw;
 		display: inline-block;
 		padding: 2rem;
 		padding-left: 3rem;
@@ -33,6 +35,9 @@
 			&.n-icon-question-circle-o {
 				color: ${levels/info/dark};
 			}
+			&.n-icon-info-circle {
+				color: ${levels/info/dark};
+			}
 			&.n-icon-exclamation-triangle {
 				color: ${levels/warning/dark};
 			}
@@ -40,5 +45,11 @@
 				color: ${levels/error/dark};
 			}
 		}
+	}
+}
+
+@media ${devices/phone} {
+	.n-confirm-icon {
+		display: none !important;
 	}
 }

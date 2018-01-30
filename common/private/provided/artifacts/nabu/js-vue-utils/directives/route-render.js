@@ -12,8 +12,6 @@ Vue.directive("route-render", {
 			}
 			var result = vnode.context.$services.router.route(parameters.alias, parameters.parameters, element, true);
 			
-			console.log("refs are", vnode.context, element);
-			
 			if (result && result.then) {
 				result.then(function(component) {
 					element["n-route-component"] = component;
@@ -45,19 +43,31 @@ Vue.directive("route-render", {
 			var isSame = isSameAlias
 				&& element["n-route-render-route"].parameters == parameters.parameters;
 			
+			// check by reference
+			if (!isSame && element["n-route-render-route"] && element["n-route-render-route"].parameters && parameters.parameters) {
+				var keys = Object.keys(parameters.parameters);
+				isSame = true;
+				for (var i = 0; i < keys.length; i++) {
+					if (element["n-route-render-route"].parameters[keys[i]] != parameters.parameters[keys[i]]) {
+						isSame = false;
+						break;
+					}
+				}
+			}
+			
 			if (!isSame) {
 				element["n-route-render-route"] = parameters;
 				
-				if (!isSameAlias) {
-					var result = vnode.context.$services.router.route(parameters.alias, parameters.parameters, element, true);
-					if (result && result.then) {
-						result.then(function(component) {
-							element["n-route-component"] = component;
-							if (keys) {
-								vnode.context.$refs[keys[0]] = component;
-							}
-						});
-					}
+				// in a past version, we required a different alias as well before we rerendered
+				// perhaps we can do a strict mode?
+				var result = vnode.context.$services.router.route(parameters.alias, parameters.parameters, element, true);
+				if (result && result.then) {
+					result.then(function(component) {
+						element["n-route-component"] = component;
+						if (keys) {
+							vnode.context.$refs[keys[0]] = component;
+						}
+					});
 				}
 			}
 		}

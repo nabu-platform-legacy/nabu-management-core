@@ -1,3 +1,8 @@
+textarea, input, button, select { 
+	font-family: inherit; 
+	font-size: inherit; 
+}
+
 a.primary {
 	color: ${link/color/primary};
 	&:hover {

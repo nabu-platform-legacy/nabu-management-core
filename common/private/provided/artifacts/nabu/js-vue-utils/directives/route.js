@@ -7,9 +7,18 @@ Vue.directive("route", {
 		if (binding.modifiers) {
 			keys = Object.keys(binding.modifiers);
 		}
+		var all = keys.indexOf("all") >= 0;
+		if (all) {
+			keys.splice(keys.indexOf("all"), 1);
+		}
 		if (keys && keys.indexOf("absolute") >= 0) {
 			url = "${environment('url')}" + url;
 			keys.splice(keys.indexOf("absolute"), 1);
+		}
+		var mask = false;
+		if (keys && keys.indexOf("mask") >= 0) {
+			mask = true;
+			keys.splice(keys.indexOf("mask"), 1);
 		}
 		// make sure we don't do anything else
 		if (element.tagName.toLowerCase() == "a") {
@@ -19,13 +28,23 @@ Vue.directive("route", {
 			// for this reason we register an onclick that is executed before the href and returns false to stop the default href behavior
 			// this gives us clean hrefs for server-side rendering / social media sharing / ... yet a functional route change in all browsers
 			element.onclick = function(event) {
-				vnode.context.$services.router.route(binding.arg, binding.value, keys && keys.length ? keys[0] : null);
+				if (all) {
+					vnode.context.$services.router.routeAll(binding.arg, binding.value, keys && keys.length ? keys[0] : null, mask);
+				}
+				else {
+					vnode.context.$services.router.route(binding.arg, binding.value, keys && keys.length ? keys[0] : null, mask);
+				}
 				return false;
 			};
 		}
 		else {
 			element.addEventListener("click", function(event) {
-				vnode.context.$services.router.route(binding.arg, binding.value, keys && keys.length ? keys[0] : null);
+				if (all) {
+					vnode.context.$services.router.routeAll(binding.arg, binding.value, keys && keys.length ? keys[0] : null, mask);
+				}
+				else {
+					vnode.context.$services.router.route(binding.arg, binding.value, keys && keys.length ? keys[0] : null, mask);
+				}
 			});
 		}
 	}

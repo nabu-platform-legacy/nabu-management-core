@@ -52,7 +52,17 @@ nabu.utils.vue.prompt = function(render) {
 // - cancel: the text for the cancel button
 nabu.utils.vue.confirm = function(parameters) {
 	return nabu.utils.vue.prompt.bind(this)(function() {
-		var component = Vue.extend({ template: "#n-confirm" });
+		var component = Vue.extend({ 
+			template: "#n-confirm",
+			data: function() {
+				return {
+					ok: null,
+					cancel: null,
+					type: null,
+					message: null
+				}
+			}
+		});
 		return new component({ data: parameters});
 	});
 };

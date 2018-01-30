@@ -25,22 +25,11 @@ Vue.config.optionMergeStrategies.activate = function (toVal, fromVal) {
 	return result;
 }
 
-Vue.config.optionMergeStrategies.activated = function (toVal, fromVal) {
-	var result = [];
-	if (fromVal instanceof Array) {
-		nabu.utils.arrays.merge(result, fromVal);
-	}
-	else if (fromVal) {
-		result.push(fromVal);
-	}
-	if (toVal instanceof Array) {
-		nabu.utils.arrays.merge(result, toVal);
-	}
-	else if (toVal) {
-		result.push(toVal);
-	}
-	return result;
-}
+Vue.config.optionMergeStrategies.activated = Vue.config.optionMergeStrategies.activate;
+Vue.config.optionMergeStrategies.clear = Vue.config.optionMergeStrategies.activate;
+Vue.config.optionMergeStrategies.services = Vue.config.optionMergeStrategies.activate;
+Vue.config.optionMergeStrategies.asyncWatch = Vue.config.optionMergeStrategies.watch;
+Vue.config.optionMergeStrategies.asyncComputed = Vue.config.optionMergeStrategies.computed;
 
 Vue.mixin({
 	// the activate() routine is done by the time we are mounted

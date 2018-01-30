@@ -21,8 +21,14 @@ nabu.utils.promise = function(parameters) {
 	this.stagedResult = null;
 	this.response = null;
 	this.parameters = parameters;
+	this.mapper = [];
 	this.succeed = function(response) {
 		if (!self.state) {
+			if (self.mapper.length) {
+				for (var i = 0; i < self.mapper.length; i++) {
+					response = self.mapper[i](response);
+				}
+			}
 			self.response = response;
 			self.state = "success";
 			for (var i = 0; i < self.successHandlers.length; i++) {
@@ -129,6 +135,14 @@ nabu.utils.promise = function(parameters) {
 		}
 		return self;
 	};
+	this.map = function(mapper) {
+		if (mapper instanceof Array) {
+			nabu.utils.arrays.merge(self.mapper, mapper);
+		}
+		else if (mapper instanceof Function) {
+			self.mapper.push(mapper);
+		}
+	}
 };
 nabu.utils.promises = function(promises) {
 	var self = this;
@@ -140,38 +154,40 @@ nabu.utils.promises = function(promises) {
 	this.state = null;
 	
 	this.resolver = function() {
-		var failed = 0;
-		var succeeded = 0;
-		var responses = [];
-		for (var i = 0; i < self.promises.length; i++) {
-			if (self.promises[i].state == "success") {
-				succeeded++;
-				responses.push(self.promises[i].response);
-			}
-			else if (self.promises[i].state == "error") {
-				failed++;
-				responses.push(self.promises[i].response);
-			}
-		}
-		if (succeeded == self.promises.length) {
-			self.state = "success";
-			for (var i = 0; i < self.successHandlers.length; i++) {
-				if (self.successHandlers[i] instanceof Function) {
-					self.successHandlers[i](responses);
+		if (self.state == null) {
+			var failed = 0;
+			var succeeded = 0;
+			var responses = [];
+			for (var i = 0; i < self.promises.length; i++) {
+				if (self.promises[i].state == "success") {
+					succeeded++;
+					responses.push(self.promises[i].response);
 				}
-				else if (self.successHandlers[i].resolve) {
-					self.successHandlers[i].resolve(responses);
+				else if (self.promises[i].state == "error") {
+					failed++;
+					responses.push(self.promises[i].response);
 				}
 			}
-		}
-		else if (succeeded + failed == self.promises.length) {
-			self.state = "error";
-			for (var i = 0; i < self.errorHandlers.length; i++) {
-				if (self.errorHandlers[i] instanceof Function) {
-					self.errorHandlers[i](responses);
+			if (succeeded == self.promises.length) {
+				self.state = "success";
+				for (var i = 0; i < self.successHandlers.length; i++) {
+					if (self.successHandlers[i] instanceof Function) {
+						self.successHandlers[i](responses);
+					}
+					else if (self.successHandlers[i].resolve) {
+						self.successHandlers[i].resolve(responses);
+					}
 				}
-				else if (self.errorHandlers[i].reject) {
-					self.errorHandlers[i].reject(responses);
+			}
+			else if (succeeded + failed == self.promises.length) {
+				self.state = "error";
+				for (var i = 0; i < self.errorHandlers.length; i++) {
+					if (self.errorHandlers[i] instanceof Function) {
+						self.errorHandlers[i](responses);
+					}
+					else if (self.errorHandlers[i].reject) {
+						self.errorHandlers[i].reject(responses);
+					}
 				}
 			}
 		}
@@ -263,5 +279,15 @@ nabu.services.Q = function Q() {
 			}
 		}
 		return new nabu.utils.promises(array);
+	};
+	this.resolve = function(result) {
+		var promise = this.defer();
+		promise.resolve(result);
+		return promise;
+	};
+	this.reject = function(result) {
+		var promise = this.defer();
+		promise.reject(result);
+		return promise;
 	};
 }

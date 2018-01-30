@@ -15,6 +15,8 @@ nabu.services.VueRouter = function(routerParameters) {
 	this.routeInitial = function(anchor) {
 		this.router.routeInitial(anchor);
 	};
+	this.routeAll = this.router.routeAll;
+	this.bookmark = this.router.bookmark;
 	this.register = function(route) {
 		route = self.create(route);
 		self.router.register(route);
