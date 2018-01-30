@@ -56,6 +56,7 @@ nabu.utils.vue.confirm = function(parameters) {
 			template: "#n-confirm",
 			data: function() {
 				return {
+					title: null,
 					ok: null,
 					cancel: null,
 					type: null,

@@ -1,5 +1,6 @@
 <template id="n-confirm">
 	<div class="n-confirm">
+		<h1 class="n-confirm-title" v-if="title">{{ title }}</h1>
 		<div v-if="type" class="n-confirm-icon"><span class="info n-icon" :class="{'n-icon-question-circle-o': type == 'question', 'n-icon-exclamation-triangle': type == 'warning', 'n-icon-exclamation-circle': type == 'error', 'n-icon-info-circle': type == 'info' }"></span></div>
 		<div class="n-confirm-content"><slot>{{ message }}</slot></div>
 		<div class="n-confirm-buttons">

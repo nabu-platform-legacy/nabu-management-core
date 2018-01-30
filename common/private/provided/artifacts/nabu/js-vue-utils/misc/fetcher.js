@@ -43,10 +43,17 @@ Vue.mixin({
 				var state = {
 					promise: null,
 					originalPromise: null,
-					name: name
+					name: name,
+					first: null
 				}
 				
 				var getter = function() {
+					if (state.first == null) {
+						state.first = true;
+					}
+					else {
+						state.first = false;
+					}
 					var promise = state.promise;
 					var originalPromise = state.originalPromise;
 					var name = state.name;
@@ -120,6 +127,7 @@ Vue.mixin({
 									// now call the actual function and feedback the result to the original promise
 									if (fetch instanceof Function) {
 										var fetchResult = fetch.apply(self, parameters);
+										console.log("fetch", name, fetchResult);
 										if (fetchResult && fetchResult.then) {
 											fetchResult.then(originalPromise, originalPromise);
 										}
@@ -188,15 +196,20 @@ Vue.mixin({
 					}
 					if (!promise.refresh) {
 						promise.refresh = function() {
-							this.state = null;
-							// reset the original promise
-							state.originalPromise = null;
-							// trigger the get again with any arguments you gave
-							var args = [];
-							for (var i = 0; i < arguments.length; i++) {
-								args.push(arguments[i]);
+							// don't refresh if it is the first call
+							// other by the simple act of getting the promise you initialize it once
+							// and then immediately again by refreshing it
+							if (!state.first) {
+								this.state = null;
+								// reset the original promise
+								state.originalPromise = null;
+								// trigger the get again with any arguments you gave
+								var args = [];
+								for (var i = 0; i < arguments.length; i++) {
+									args.push(arguments[i]);
+								}
+								getter.apply(self, arguments);
 							}
-							getter.apply(self, arguments);
 							return promise;
 						};
 					}

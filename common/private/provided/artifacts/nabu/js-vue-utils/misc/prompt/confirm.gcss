@@ -5,9 +5,18 @@
 	width: 30rem;
 	max-width: 90vw;
 	
+	h1 {
+		font-size: 1.5rem;
+		text-align: center;
+		margin: 0.7rem 0;
+		&+ .n-confirm-content {
+			margin-top: 0;
+			padding-top: 0.7rem;
+		}
+	}
+	
 	.n-confirm-content {
 		width: 23rem;
-		max-width: 90vw;
 		display: inline-block;
 		padding: 2rem;
 		padding-left: 3rem;
@@ -25,17 +34,14 @@
 	.n-confirm-icon {
 		width: 6rem;
 		display: inline-block;
-		padding: 1rem;
+		padding: 2rem;
+		vertical-align: top;
 		.n-icon {
 			&:before {
 				font-size: 6rem;
-				padding: 1rem;
 				vertical-align: middle;
 			}
 			&.n-icon-question-circle-o {
-				color: ${levels/info/dark};
-			}
-			&.n-icon-info-circle {
 				color: ${levels/info/dark};
 			}
 			&.n-icon-exclamation-triangle {
@@ -45,11 +51,5 @@
 				color: ${levels/error/dark};
 			}
 		}
-	}
-}
-
-@media ${devices/phone} {
-	.n-confirm-icon {
-		display: none !important;
 	}
 }

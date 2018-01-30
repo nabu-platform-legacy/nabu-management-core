@@ -16,7 +16,11 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 	}
 	if (definition.type == "string") {
 		if (definition.format == "date" && value instanceof Date) {
-			return value.toISOString().substring(0, 10);
+			// depending on how you constructed the date, the time part may be local time or not
+			// e.g. new Date("2018-01-01") is interpreted as 0 UTC (so 1 CET) and getting the date component is UTC is the same day
+			// if you do new Date(2018, 1, 1), it is interpreted as 0 local time (so -1 vs UTC) and transforming to UTC gets you the previous day
+			return value.getFullYear() + "-" + (value.getMonth() < 9 ? "0" : "") + (value.getMonth() + 1) + "-" + (value.getDate() < 10 ? "0" : "") + value.getDate();
+//			return value.toISOString().substring(0, 10);
 		}
 		else if (definition.format == "date-time" && value instanceof Date) {
 			return value.toISOString();
