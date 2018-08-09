@@ -2,10 +2,41 @@ if (!nabu) { nabu = {}; }
 if (!nabu.utils) { nabu.utils = {}; }
 
 nabu.utils.objects = {
+	copy: function(content) {
+		var area = document.createElement("textarea");
+		// Prevent zooming on iOS
+		area.style.fontSize = '12pt';
+		// Reset box model
+		area.style.border = '0';
+		area.style.padding = '0';
+		area.style.margin = '0';
+		// Move element out of screen horizontally
+		area.style.position = 'absolute';
+		area.style.left = '-9999px';
+		// Move element to the same position vertically
+		var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+		area.style.top = yPosition + "px";
+		
+		area.setAttribute('readonly', '');
+		area.value = typeof(content) == "string" ? content : JSON.stringify(content);
+		document.body.appendChild(area);
+		area.select();
+		document.execCommand("copy");
+	},
+	deepClone: function(original) {
+		return JSON.parse(JSON.stringify(original));	
+	},
 	clone: function(original) {
-		var copy = {};
-		nabu.utils.objects.merge(copy, original);
-		return copy;
+		if (original instanceof Array) {
+			return original.map(function(single) {
+				return nabu.utils.objects.clone(single);
+			});
+		}
+		else {
+			var copy = {};
+			nabu.utils.objects.merge(copy, original);
+			return copy;
+		}
 	},
 	retain: function(original, values) {
 		for (var key in original) {
@@ -56,7 +87,8 @@ nabu.utils.objects = {
 								nabu.utils.arrays.merge(original[key], arguments[i][key]);
 							}
 						}
-						else if (typeof arguments[i][key] == "object" && !(arguments[i][key] instanceof Date)) {
+						// typeof(null) is object
+						else if (typeof arguments[i][key] == "object" && arguments[i][key] != null && !(arguments[i][key] instanceof Date)) {
 							if (!original[key]) {
 								original[key] = arguments[i][key];
 							}

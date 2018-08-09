@@ -2,12 +2,19 @@
 // additionally you can add specific "auto-close" attributes to certain elements inside that should also close the element
 Vue.directive("auto-close", {
 	bind: function(element, binding) {
+		var keys = binding.modifiers ? Object.keys(binding.modifiers) : null;
 		element["$n-auto-close-listener"] = function(event) {
-			var close = event.target != element && !element.contains(event.target);
+			// it still has to be in the document to be valid
+			var close = event.target != element && !element.contains(event.target) && document.contains(event.target);
 			if (!close && element.contains(event.target)) {
 				var find = event.target;
+				var attribute = "auto-close";
+				// we can look for specific auto-closes
+				if (keys.length) {
+					attribute += "-" + keys[0];
+				}
 				while (find != element) {
-					if (find.hasAttribute("auto-close") && find.getAttribute("auto-close") != "false") {
+					if (find.hasAttribute(attribute) && find.getAttribute(attribute) != "false") {
 						close = true;
 						break;
 					}
@@ -22,7 +29,7 @@ Vue.directive("auto-close", {
 	},
 	unbind: function(element) {
 		if (element["$n-auto-close-listener"]) {
-			window.removeEventListener("click", element["$n-auto-close-listener"]);
+			window.removeEventListener("click", element["$n-auto-close-listener"], true);
 		}
 	}
 });

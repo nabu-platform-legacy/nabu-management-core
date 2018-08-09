@@ -40,7 +40,16 @@ Vue.component("n-form-checkbox", {
 			type: Boolean,
 			required: false
 		},
-		inverse: {
+		invert: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+		validator: {
+			type: Function,
+			required: false
+		},
+		mustCheck: {
 			type: Boolean,
 			required: false,
 			default: false
@@ -70,9 +79,22 @@ Vue.component("n-form-checkbox", {
 			return this.invert ? !value : value;
 		},
 		validate: function() {
-			var messages = nabu.utils.schema.json.validate(this.definition, this.value, this.mandatory);
+			// if the checkbox is set to mustCheck but the calculated value is null, false or undefined or anything but true, we imitate a null value to trigger the mandatory validation
+			var messages = nabu.utils.schema.json.validate(this.definition, this.mustCheck && !this.calculatedValue ? null : (this.calculatedValue == null ? false : this.calculatedValue), this.mandatory || this.mustCheck);
 			for (var i = 0; i < messages.length; i++) {
 				messages[i].component = this;
+			}
+			if (this.validator) {
+				var additional = this.validator(this.value);
+				if (additional && additional.length) {
+					for (var i = 0; i < additional.length; i++) {
+						additional[i].component = this;
+						if (typeof(additional[i].context) == "undefined") {
+							additional[i].context = [];
+						}
+						messages.push(additional[i]);
+					}
+				}
 			}
 			this.valid = messages.length == 0;
 			return messages;
@@ -91,7 +113,7 @@ Vue.component("n-form-checkbox", {
 					}
 				}
 				else {
-					this.$emit("input", !this.calculatedValue);
+					this.$emit("input", this.invertIfNecessary(!this.calculatedValue));
 				}
 			}
 		},
@@ -114,13 +136,11 @@ Vue.component("n-form-checkbox", {
 	}
 });
 
-Vue.directive("checked", {
-	bind: function(element, binding) {
-		if ((binding.value instanceof Array && binding.length) || (!(binding.value instanceof Array) && binding.value)) {
-			element.setAttribute("checked", "true");
-		}
-		else {
-			element.removeAttribute("checked");
-		}
+Vue.directive("checked", function(element, binding) {
+	if ((binding.value instanceof Array && binding.length) || (!(binding.value instanceof Array) && binding.value)) {
+		element.setAttribute("checked", "true");
+	}
+	else {
+		element.removeAttribute("checked");
 	}
 });

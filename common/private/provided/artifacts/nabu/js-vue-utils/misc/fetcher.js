@@ -15,7 +15,8 @@ Vue.mixin({
 						if (typeof(string) == "string") {
 							// can't do ".*" because there is no "dotall" modifier (though /s _does_ work on chrome, it does not on firefox)
 							// instead [^]* will match any character that is not nothing...
-							var parameters = string.replace(/^[^(]*\(([^)]*)\)[^]*/g, "$1").trim();
+							// but that does not work on server-side, so switch to [\s\S]
+							var parameters = string.replace(/^[^(]*\(([^)]*)\)[\s\S]*/g, "$1").trim();
 							if (parameters.length == 0) {
 								return 0;
 							}
@@ -212,6 +213,11 @@ Vue.mixin({
 							}
 							return promise;
 						};
+					}
+					if (!promise.resolved) {
+						promise.resolved = function() {
+							return self.$data.$fetched[name];
+						}
 					}
 					return resolve ? self.$data.$fetched[name] : promise;
 				}

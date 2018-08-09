@@ -1,4 +1,4 @@
-@csrf none
+@csrf false
 
 if (!user.authenticated() && !user.remember())
 	nabu.utils.login("Nabu Management")

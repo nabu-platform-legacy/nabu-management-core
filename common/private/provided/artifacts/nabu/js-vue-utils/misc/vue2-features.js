@@ -42,10 +42,7 @@ Vue.mixin({
 			}
 		}
 		if (this.$options.asyncWatch) {
-			var watchers = this.$options.asyncWatch instanceof Array ? this.$options.asyncWatch : [this.$options.asyncWatch]; 		
-			for (var i = 0; i < watchers.length; i++) {
-				Vue.util.initWatch(this, watchers[i]);
-			}
+			Vue.util.initWatch(this, this.$options.asyncWatch);
 		}
 	},
 	methods: {

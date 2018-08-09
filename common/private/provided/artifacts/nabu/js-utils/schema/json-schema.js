@@ -56,6 +56,10 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 		else if (typeof(value) == "undefined" || value == null) {
 			return null;
 		}
+		// if we don't do this, !!"false" actually results in true
+		else if (typeof(value) == "string" && value.toLowerCase() === "false") {
+			 return false;
+		}
 		else {
 			return !!value;
 		}
@@ -83,7 +87,15 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 					result[key] = formatted;
 				}
 				else if (definition.required && definition.required.indexOf(key) >= 0) {
-					throw "Missing required element: " + key;
+					// if we have a required boolean that does not have a value, we set it to false
+					// this is to prevent the problem where a null-valued checkbox needs to be explicitly enabled and disabled to get "false"
+					// even though booleans should be false by default
+					if (definition.properties[key].type == "boolean") {
+						result[key] = false;
+					}
+					else {
+						throw "Missing required element: " + key;
+					}
 				}
 			}
 		}
@@ -249,13 +261,13 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 			});
 		}
 	}
-	var pattern = function(value, pattern) {
+	var pattern = function(value, pattern, patternComment) {
 		if (typeof(pattern) !== "undefined" && !result.match(pattern)) {
 			messages.push({
 				severity: "error",
 				code: "pattern",
-				title: "%{validation:The value '{actual}' does not match the expected pattern '{expected}'}",
-				priority: -3,
+				title: patternComment ? patternComment : "%{validation:The value '{actual}' does not match the expected pattern '{expected}'}",
+				priority: patternComment ? -1 : -3,
 				values: {
 					actual: result,
 					expected: pattern
@@ -355,7 +367,7 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 			var result = typeof(value) === "string" ? value : new String(value);
 			minLength(result, definition.minLength);
 			maxLength(result, definition.maxLength);
-			pattern(result, definition.pattern);
+			pattern(result, definition.pattern, definition.patternComment);
 		}
 	}
 	if (definition.type == "number" || definition.type == "integer") {

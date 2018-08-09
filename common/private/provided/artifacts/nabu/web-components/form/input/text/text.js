@@ -36,6 +36,10 @@ Vue.component("n-form-text", {
 			type: String,
 			required: false
 		},
+		patternComment: {
+			type: String,
+			required: false
+		},
 		minLength: {
 			type: Number,
 			required: false
@@ -99,6 +103,11 @@ Vue.component("n-form-text", {
 		mode: {
 			type: String,
 			required: false
+		},
+		autoSelect: {
+			type: Boolean,
+			required: false,
+			default: false
 		}
 	},
 	template: "#n-form-text",
@@ -122,6 +131,12 @@ Vue.component("n-form-text", {
 		}
 	},
 	methods: {
+		focus: function($event) {
+			this.$emit('focus', $event);
+			if (this.autoSelect) {
+				this.$refs.input.select();
+			}
+		},
 		validate: function(soft) {
 			var messages = nabu.utils.schema.json.validate(this.definition, this.value, this.mandatory);
 			for (var i = 0; i < messages.length; i++) {
@@ -186,6 +201,8 @@ Vue.component("n-form-text", {
 					clearTimeout(this.timer);
 					this.timer = null;
 				}
+				// always emit the change event, it is not subject to timeout
+				this.$emit("change", value);
 				if (this.timeout) {
 					var self = this;
 					this.timer = setTimeout(function() {

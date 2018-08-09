@@ -9,6 +9,15 @@ nabu.services.VueService = function(component, parameters) {
 	
 	var service = function($services) {
 		var activate = function(instance) {
+			var callActivated = function() {
+				// call the activated hook
+				if (instance.$options.activated) {
+					var activated = instance.$options.activated instanceof Array ? instance.$options.activated : [instance.$options.activated];
+					for (var i = 0; i < activated.length; i++) {
+						activated[i].call(instance);
+					}
+				}
+			};
 			if (instance.$options && instance.$options.activate) {
 				if (instance.$options.activate instanceof Array) {
 					var promises = [];
@@ -25,13 +34,7 @@ nabu.services.VueService = function(component, parameters) {
 					}
 					var resultingPromise = $services.q.defer();
 					$services.q.all(promises).then(function(x) {
-						// call the activated hook
-						if (instance.$options.activated) {
-							var activated = instance.$options.activated instanceof Array ? instance.$options.activated : [instance.$options.activated];
-							for (var i = 0; i < activated.length; i++) {
-								activated[i].call(instance);
-							}
-						}
+						callActivated();
 						var resultingService = null;
 						if (x) {
 							for (var i = 0; i < x.length; i++) {
@@ -47,6 +50,7 @@ nabu.services.VueService = function(component, parameters) {
 				else {
 					var promise = $services.q.defer();
 					var done = function(result) {
+						callActivated();
 						promise.resolve(result ? result : instance);
 					};
 					instance.$options.activate.call(instance, done);
@@ -55,6 +59,7 @@ nabu.services.VueService = function(component, parameters) {
 			}
 			else {
 				var promise = $services.q.defer();
+				callActivated();
 				promise.resolve(instance);
 				return promise;
 			}
@@ -71,7 +76,7 @@ nabu.services.VueService = function(component, parameters) {
 						var done = function() {
 							promise.resolve();
 						};
-						clear.call(instance);
+						clear.call(instance, done);
 						return promise;
 					};
 					for (var i = 0; i < clears.length; i++) {
@@ -98,7 +103,7 @@ nabu.services.VueService = function(component, parameters) {
 				if (instance.$options.services && instance.$options.services.length) {
 					var promises = [];
 					for (var i = 0; i < instance.$options.services.length; i++) {
-						var promise = $services.$promises[instance.$options.services[i]];
+						var promise = $services.$promise(instance.$options.services[i]);
 						if (!promise) {
 							throw "Could not find service dependency: " + instance.$options.services[i];
 						}

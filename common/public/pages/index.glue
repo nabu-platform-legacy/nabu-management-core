@@ -1,4 +1,5 @@
 @cache 0, revalidate
+@csrf false
 
 nabu.utils.index(
 	title: "Nabu Management",

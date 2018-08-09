@@ -20,11 +20,15 @@
 			:timeout="timeout"
 			:autoclose="autoclose"
 			:placeholder="placeholder"
+			:disabled="disabled"
+			:initial-label="initialLabel"
+			:extracter="extracter"
+			:name="name"
 			ref="combo">
 		
 			<div class="n-form-combo-bottom" slot="bottom">
-				<span class="n-input-result n-icon n-icon-check" v-if="valid != null && valid && edit"></span>
-				<span class="n-input-result n-icon n-icon-times" v-if="valid != null && !valid && edit"></span>
+				<span class="n-input-result n-icon n-icon-check fa fa-check" v-if="valid != null && valid && edit"></span>
+				<span class="n-input-result n-icon n-icon-times fa fa-times" v-if="valid != null && !valid && edit"></span>
 				<n-messages :messages="messages" v-if="messages && messages.length"/>
 			</div>
 			

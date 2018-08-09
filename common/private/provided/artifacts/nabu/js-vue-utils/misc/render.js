@@ -33,8 +33,8 @@ nabu.utils.vue.render = function(parameters) {
 				element.__vue__.$destroy();
 			}
 		}
+		destroy(element);
 	}
-	destroy(element);
 	var component = parameters.content;
 	// if we have a return value, we need to add it to the anchor
 	if (component) {
@@ -65,6 +65,7 @@ nabu.utils.vue.render = function(parameters) {
 					}
 					if (possible && possible.__vue__) {
 						component.$parent = possible.__vue__;
+						component.$root = component.$parent.$root ? component.$parent.$root : component.$parent;
 					}
 				}
 			}

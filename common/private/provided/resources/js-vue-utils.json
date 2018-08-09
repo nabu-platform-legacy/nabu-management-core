@@ -10,11 +10,20 @@
 					"url": "directives/sticky-header/sticky-header.js"
 				}
 			}, 
-			"action.js": {
-				"url": "directives/action.js"
+			"select-on.js": {
+				"url": "directives/select-on.js"
 			}, 
 			"auto-close.js": {
 				"url": "directives/auto-close.js"
+			}, 
+			"timeout.js": {
+				"url": "directives/timeout.js"
+			}, 
+			"css.js": {
+				"url": "directives/css.js"
+			}, 
+			"action.js": {
+				"url": "directives/action.js"
 			}, 
 			"group.js": {
 				"url": "directives/group.js"
@@ -22,8 +31,8 @@
 			"route-render.js": {
 				"url": "directives/route-render.js"
 			}, 
-			"timeout.js": {
-				"url": "directives/timeout.js"
+			"visible.js": {
+				"url": "directives/visible.js"
 			}, 
 			"content.js": {
 				"url": "directives/content.js"
@@ -31,14 +40,14 @@
 			"fixed-header.js": {
 				"url": "directives/fixed-header.js"
 			}, 
-			"css.js": {
-				"url": "directives/css.js"
-			}, 
 			"focus.js": {
 				"url": "directives/focus.js"
 			}, 
 			"route.js": {
 				"url": "directives/route.js"
+			}, 
+			"bubble.js": {
+				"url": "directives/bubble.js"
 			}
 		}, 
 		"vue": {
@@ -54,6 +63,12 @@
 		}, 
 		"misc": {
 			"prompt": {
+				"prompt.sass": {
+					"url": "misc/prompt/prompt.sass"
+				}, 
+				"confirm.sass": {
+					"url": "misc/prompt/confirm.sass"
+				}, 
 				"confirm.gcss": {
 					"url": "misc/prompt/confirm.gcss"
 				}, 

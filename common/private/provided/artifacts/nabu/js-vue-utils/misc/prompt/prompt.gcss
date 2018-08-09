@@ -12,6 +12,7 @@
 	width: 100%;
 	z-index: 10000;
 	.n-prompt-container {
+		position: relative;
 		height: auto;
 		min-height: 10rem;
 		max-height: 90vh;
@@ -19,6 +20,9 @@
 		max-width: 90vw;
 		overflow-y: auto;
 		overflow-x: hidden;
+		> .n-icon-spinner {
+			position: static;
+		}
 	}
 }
 

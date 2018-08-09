@@ -11,12 +11,20 @@ Vue.component("n-form-combo", {
 			type: Array,
 			required: false
 		},
+		initialLabel: {
+			required: false
+		},
 		filter: {
 			type: Function,
 			required: false
 		},
 		// used to format the value into the input once selected from the dropdown
 		formatter: {
+			type: Function,
+			required: false
+		},
+		// used to extract the actual value from the suggested items
+		extracter: {
 			type: Function,
 			required: false
 		},
@@ -56,6 +64,14 @@ Vue.component("n-form-combo", {
 			type: Boolean,
 			required: false,
 			default: true
+		},
+		disabled: {
+			type: Boolean,
+			required: false
+		},
+		name: {
+			type: String,
+			required: false
 		}
 	},
 	template: "#n-form-combo",
@@ -82,16 +98,11 @@ Vue.component("n-form-combo", {
 			this.valid = messages.length == 0;
 			return messages;
 		},
-		updateValue: function(value) {
-			this.$emit("input", value);
+		updateValue: function(value, label) {
+			this.$emit("input", value, label);
 		},
 		clear: function() {
 			this.$refs.combo.clear();
-		}
-	},
-	watch: {
-		value: function(newValue) {
-			console.log("new value is", newValue);
 		}
 	}
 });

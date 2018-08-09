@@ -40,7 +40,10 @@ Vue.component("n-form-richtext", {
 	data: function() {
 		return {
 			messages: [],
-			valid: null
+			valid: null,
+			showBlock: false,
+			showJustify: false,
+			color: "#000000"
 		};
 	},
 	computed: {
@@ -52,6 +55,9 @@ Vue.component("n-form-richtext", {
 		}
 	},
 	methods: {
+		justify: function(direction) {
+			document.execCommand(direction, false, null)
+		},
 		insertTable: function() {
 			document.execCommand("insertHTML", null, "<table cellspacing='0' cellpadding='0'><tr><td>" + window.getSelection() + "</td></tr></table>");
 		},
@@ -59,7 +65,7 @@ Vue.component("n-form-richtext", {
 			document.execCommand("insertHTML", null, "<ul><li>" + window.getSelection() + "</li></ul>");
 		},
 		wrap: function(tag) {
-			document.execCommand("insertHTML", null, "<" + tag + ">" + window.getSelection() + "</" + tag+ ">");
+			document.execCommand("insertHTML", null, "<" + tag + ">" + window.getSelection() + "</" + tag + ">");
 		},
 		bold: function() {
 			document.execCommand("bold", false, null);
@@ -83,7 +89,7 @@ Vue.component("n-form-richtext", {
 						console.log("pre-strip", content);
 						document.execCommand("insertHTML", null, nabu.utils.elements.clean(
 							content,
-							["p", "strong", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "strong", "em", "b", "i", "u", "ul", "ol", "li", "br"],
+							["p", "strong", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "strong", "em", "b", "i", "u", "ul", "ol", "li", "br", "span", "div"],
 							["head", "script", "style", "meta"]));
 					});
 					break;
@@ -111,6 +117,10 @@ Vue.component("n-form-richtext", {
 			}
 			this.valid = messages.length == 0;
 			return messages;
+		},
+		applyColor: function() {
+			console.log("coloring",  "<span style='color:" + this.color + "'>" + window.getSelection() + "</span>");
+			document.execCommand("insertHTML", null, "<span style='color:" + this.color + "'>" + window.getSelection() + "</span>");
 		}
 	}
 });

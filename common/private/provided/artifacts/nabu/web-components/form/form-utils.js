@@ -14,7 +14,7 @@ nabu.utils.vue.form = {
 			schema = {};
 		}
 		// bind in the additional keys
-		var keys = ["minLength", "maxLength", "pattern", "maxItems", "minItems", "maximum", "minimum", "exclusiveMaximum", "exclusiveMinimum", "enum"];
+		var keys = ["minLength", "maxLength", "pattern", "patternComment", "maxItems", "minItems", "maximum", "minimum", "exclusiveMaximum", "exclusiveMinimum", "enum"];
 		for (var i = 0; i < keys.length; i++) {
 			if (typeof(component[keys[i]]) != "undefined") {
 				schema[keys[i]] = component[keys[i]];
@@ -27,7 +27,10 @@ nabu.utils.vue.form = {
 		if (required == null && component.name && component.$parent && component.$parent.definition) {
 			required = component.$parent.definition.required && component.$parent.definition.required.indexOf(component.name) >= 0;
 		}
-		else if (required == null) {
+		if (required == null && component.definition.required) {
+			required = true;
+		}
+		if (required == null) {
 			required = false;
 		}
 		return required;

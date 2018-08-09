@@ -111,7 +111,9 @@ nabu.services.SwaggerClient = function(parameters) {
 						parameters: operation.parameters,
 						path: path,
 						method: method,
-						responses: operation.responses
+						responses: operation.responses,
+						consumes: operation.consumers,
+						produces: operation.produces
 					}
 				});
 			});
@@ -146,7 +148,7 @@ nabu.services.SwaggerClient = function(parameters) {
 		var data = null;
 		for (var i = 0; i < operation.parameters.length; i++) {
 			// we don't check header parameters as they may be injected by the browser and or ajax library
-			if (operation.parameters[i].required && operation.parameters[i].in != "header" && (!parameters || typeof(parameters[operation.parameters[i].name]) == "undefined")) {
+			if (operation.parameters[i].required && operation.parameters[i].in != "header" && (!parameters || typeof(parameters[operation.parameters[i].name]) == "undefined" || parameters[operation.parameters[i].name] == null)) {
 				throw "Missing required parameter for " + name + ": " + operation.parameters[i].name;
 			}
 			if (parameters && parameters.hasOwnProperty(operation.parameters[i].name)) {
@@ -213,11 +215,14 @@ nabu.services.SwaggerClient = function(parameters) {
 		Object.keys(query).forEach(function (key) {
 			if (query[key] instanceof Array) {
 				for (var i = 0; i < query[key].length; i++) {
-					path += path.indexOf("?") >= 0 ? "&" : "?";
-					path += encodeURIComponent(key) + "=" + encodeURIComponent(query[key][i]);
+					// don't include null values
+					if (query[key][i] != null) {
+						path += path.indexOf("?") >= 0 ? "&" : "?";
+						path += encodeURIComponent(key) + "=" + encodeURIComponent(query[key][i]);
+					}
 				}
 			}
-			else {
+			else if (query[key] != null) {
 				path += path.indexOf("?") >= 0 ? "&" : "?";
 				path += encodeURIComponent(key) + "=" + encodeURIComponent(query[key]);
 			}
@@ -262,6 +267,40 @@ nabu.services.SwaggerClient = function(parameters) {
 		}
 		return definition;
 	};
+	
+	this.resolve = function(element, resolved) {
+		if (!resolved) {
+			return this.resolve(element, {});
+		}
+		var self = this;
+		if (element.schema && element.schema["$ref"]) {
+			element = nabu.utils.objects.deepClone(element);
+			if (!resolved[element.schema["$ref"]]) {
+				resolved[element.schema["$ref"]] = this.resolve(this.definition(element.schema["$ref"]), resolved);
+			}
+			element.schema = resolved[element.schema["$ref"]];
+		}
+		else if (element.items && element.items["$ref"]) {
+			element = nabu.utils.objects.deepClone(element);
+			if (!resolved[element.items["$ref"]]) {
+				resolved[element.items["$ref"]] = this.resolve(this.definition(element.items["$ref"]), resolved);
+			}
+			element.items = resolved[element.items["$ref"]];
+		}
+		else if (element["$ref"]) {
+			if (!resolved[element["$ref"]]) {
+				resolved[element["$ref"]] = this.resolve(this.definition(element["$ref"]), resolved);
+			}
+			return resolved[element["$ref"]];
+		}
+		else if (element.properties) {
+			element = nabu.utils.objects.deepClone(element);
+			Object.keys(element.properties).map(function(key) {
+				element.properties[key] = self.resolve(element.properties[key], resolved);
+			});
+		}
+		return element;
+	}
 	
 	return this;
 };

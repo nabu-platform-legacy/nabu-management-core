@@ -43,8 +43,16 @@ nabu.utils.elements = {
 			element.removeChild(element.firstChild);
 		}
 	},
+	inViewport: function(element) {
+		var rect = element.getBoundingClientRect();
+		return rect.top >= 0
+			&& rect.left >= 0
+			&& rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
+			&& rect.right <= (window.innerWidth || document.documentElement.clientWidth);
+	},
 	sanitize: function(element) {
-		var allowedTags = ["a", "b", "i", "u", "em", "strong", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "p", "strong"];
+		var allowedTags = ["a", "b", "i", "u", "em", "strong", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "p", "table", "ul", 
+			"li", "tr", "td", "thead", "tbody", "th", "ol", "font", "br", "span", "div"];
 		var allowedAttributes = ["style"];
 		return nabu.utils.elements.clean(element, allowedTags, null, allowedAttributes);
 	},
@@ -64,7 +72,8 @@ nabu.utils.elements = {
 		};
 
 		var recursiveStrip = function (element) {
-			removeAttributes(element);
+			// very odd line, perhaps from before there was a white/blacklist?
+			//removeAttributes(element);
 			for (var i = element.childNodes.length - 1; i >= 0; i--) {
 				if (element.childNodes[i].nodeType == 1) {
 					if (tagsToRemove && tagsToRemove.indexOf(element.childNodes[i].nodeName.toLowerCase()) >= 0) {
@@ -91,18 +100,20 @@ nabu.utils.elements = {
 							}
 							element.removeChild(child);
 						}
-						else if (element.childNodes[i].innerHTML.trim() == "") {
-							element.removeChild(element.childNodes[i]);
-						}
 					}
 				}
 			}
 		}
 
 		var template = document.createElement("div");
-		template.appendChild(element);
+		if (typeof(element) == "object" && element.nodeType === 1) {
+			template.appendChild(element);
+		}
+		else {
+			template.innerHTML = element;
+		}
 		recursiveStrip(template);
-		return returnAsString ? template.innerHTML : template;
+		return returnAsString ? element.innerHTML : template;
 	},
 	inlineCss: function(element, recursive, media, elementAcceptor, rules) {
 		if (!elementAcceptor) {
@@ -139,7 +150,10 @@ nabu.utils.elements = {
 				}
 				result += css[i].replace(/.*\{[\s]*(.*)[\s]*\}.*/, "$1");
 			}
-			element.setAttribute("style", result);
+			if (!element.hasAttribute("original-style")) {
+				element.setAttribute("original-style", element.getAttribute("style") ? element.getAttribute("style") : " ");
+			}
+			element.setAttribute("style", element.getAttribute("original-style") + ";" + result);
 		}
 		
 		if (recursive) {
@@ -154,44 +168,49 @@ nabu.utils.elements = {
 		var result = [];
 		var sheets = document.styleSheets;
 		for (var l = 0; l < sheets.length; l++) {
-			var rules = sheets.item(l).rules || sheets.item(l).cssRules;
-			for (var i = 0; i < rules.length; i++) {
-				var rule = rules.item(i);
-				if (media && rule.media) {
-					var isCorrectMedia = false;
-					for (var j = 0; j < rule.media.length; j++) {
-						if (rule.media.item(j).toString() == media) {
-							isCorrectMedia = true;
-							break;
+			try {
+				var rules = sheets.item(l).rules || sheets.item(l).cssRules;
+				for (var i = 0; i < rules.length; i++) {
+					var rule = rules.item(i);
+					if (media && rule.media) {
+						var isCorrectMedia = false;
+						for (var j = 0; j < rule.media.length; j++) {
+							if (rule.media.item(j).toString() == media) {
+								isCorrectMedia = true;
+								break;
+							}
 						}
-					}
-					if (isCorrectMedia) {
-						// in new browsers, there is support for getting the rules inside the media
-						var mediaRules = rule.rules || rule.cssRules;
-						// otherwise we cheat
-						if (!mediaRules) {
-							var style = document.createElement("style");
-							style.setAttribute("type", "text/css");
-	//						style.appendChild(document.createTextNode(rule.cssText.replace(/@media.*?\{(.*)\}[\s]*/, "$1")));
-							style.innerHTML = rule.cssText.replace(/@media.*?\{[\s]*(.*)[\s]*\}[\s]*/, "$1");
-							document.head.appendChild(style);
-							mediaRules = document.styleSheets[document.styleSheets.length - 1].cssRules;
-							document.head.removeChild(style);
-						}
-						if (mediaRules) {
-							for (var k = 0; k < mediaRules.length; k++) {
-								if (mediaRules.item(k).selectorText) {
-									result.push(mediaRules.item(k));
+						if (isCorrectMedia) {
+							// in new browsers, there is support for getting the rules inside the media
+							var mediaRules = rule.rules || rule.cssRules;
+							// otherwise we cheat
+							if (!mediaRules) {
+								var style = document.createElement("style");
+								style.setAttribute("type", "text/css");
+		//						style.appendChild(document.createTextNode(rule.cssText.replace(/@media.*?\{(.*)\}[\s]*/, "$1")));
+								style.innerHTML = rule.cssText.replace(/@media.*?\{[\s]*(.*)[\s]*\}[\s]*/, "$1");
+								document.head.appendChild(style);
+								mediaRules = document.styleSheets[document.styleSheets.length - 1].cssRules;
+								document.head.removeChild(style);
+							}
+							if (mediaRules) {
+								for (var k = 0; k < mediaRules.length; k++) {
+									if (mediaRules.item(k).selectorText) {
+										result.push(mediaRules.item(k));
+									}
 								}
 							}
 						}
 					}
-				}
-				else if (!media) {
-					if (rule.selectorText) {
-						result.push(rule);
+					else if (!media) {
+						if (rule.selectorText) {
+							result.push(rule);
+						}
 					}
 				}
+			}
+			catch(exception) {
+				// ignore
 			}
 		}
 		return result;

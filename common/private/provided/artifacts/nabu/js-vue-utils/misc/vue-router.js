@@ -9,12 +9,14 @@ nabu.services.VueRouter = function(routerParameters) {
 	this.components = {};
 	this.router = new nabu.services.Router(routerParameters);
 
+	this.useProps = routerParameters.useProps;
 	this.route = function(alias, parameters, anchor, mask) {
 		return self.router.route(alias, parameters, anchor, mask);
 	}
 	this.routeInitial = function(anchor) {
 		this.router.routeInitial(anchor);
 	};
+	this.updateUrl = this.router.updateUrl;
 	this.routeAll = this.router.routeAll;
 	this.bookmark = this.router.bookmark;
 	this.register = function(route) {
@@ -22,6 +24,7 @@ nabu.services.VueRouter = function(routerParameters) {
 		self.router.register(route);
 		return route;
 	};
+	this.unregister = this.router.unregister;
 	this.template = function(alias, parameters) {
 		return self.router.template(alias, parameters);
 	};
@@ -46,10 +49,10 @@ nabu.services.VueRouter = function(routerParameters) {
 					else if (route.component) {
 						if (typeof(route.component) == "string") {
 							component = eval(route.component);
-							component = new component({ data: parameters });
+							component = new component(self.useProps ? {propsData: parameters} : { data: parameters });
 						}
 						else {
-							component = new route.component({ data: parameters });
+							component = new route.component(self.useProps ? {propsData: parameters} : { data: parameters });
 						}
 					}
 					route.$lastInstances[anchorName] = nabu.utils.vue.render({
@@ -100,21 +103,6 @@ nabu.services.VueRouter = function(routerParameters) {
 		}
 		var originalLeave = route.leave;
 		route.leave = function(anchorName, currentParameters, newRoute, newParameters) {
-			if (route.$lastInstances && route.$lastInstances[anchorName] && route.$lastInstances[anchorName].$destroy) {
-				route.$lastInstances[anchorName].$destroy();
-				route.$lastInstances[anchorName] = null;
-			}
-			else if (route.$lastInstances && route.$lastInstances[anchorName] && route.$lastInstances[anchorName].$options.beforeDestroy) {
-				if (route.$lastInstances[anchorName].$options.beforeDestroy instanceof Array) {
-					for (var i = 0; i < route.$lastInstances[anchorName].$options.beforeDestroy.length; i++) {
-						route.$lastInstances[anchorName].$options.beforeDestroy[i].call(route.$lastInstances[anchorName]);
-					}
-				}
-				else {
-					route.$lastInstances[anchorName].$options.beforeDestroy.call(route.$lastInstances[anchorName]);
-				}
-				route.$lastInstances[anchorName] = null;
-			}
 			var anchor = nabu.utils.anchors.find(anchorName);
 			if (anchor) {
 				for (var i = 0; i < anchor.$el.attributes.length; i++) {
