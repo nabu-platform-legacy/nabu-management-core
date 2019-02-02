@@ -2,6 +2,10 @@
 // the first time you scroll up however, the menu pops back up
 Vue.directive("fixed-header", {
 	bind: function(element, binding) {
+		var result = binding.value;
+		if (result != null && result == false) {
+			return;
+		}
 		var originalPosition = element.style.position;
 		var originalMargin = element.style.marginBottom;
 		

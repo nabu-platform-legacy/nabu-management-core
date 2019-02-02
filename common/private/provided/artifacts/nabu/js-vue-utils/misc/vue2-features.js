@@ -110,6 +110,7 @@ Vue.mixin({
 	},
 	computed: {
 		$window: function() { return window },
-		$document: function() { return document }
+		$document: function() { return document },
+		$self: function() { return this }
 	}
 });

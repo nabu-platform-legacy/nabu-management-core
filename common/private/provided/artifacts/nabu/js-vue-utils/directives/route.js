@@ -21,6 +21,27 @@ Vue.directive("route", function(element, binding, vnode) {
 		mask = true;
 		keys.splice(keys.indexOf("mask"), 1);
 	}
+	var onclick = function(event) {
+		if (!routing) {
+			var anchor = null;
+			if (keys && keys.indexOf("self") >= 0) {
+				console.log("routing in", keys, element);
+				anchor = nabu.utils.router.self(element);
+			}
+			else if (keys && keys.length) {
+				anchor = keys[0];
+			}
+			routing = true;
+			if (all) {
+				vnode.context.$services.router.routeAll(alias, parameters, anchor, mask);
+			}
+			else {
+				vnode.context.$services.router.route(alias, parameters, anchor, mask);
+			}
+			routing = false;
+		}
+		return false;
+	};
 	// make sure we don't trigger twice
 	var routing = false;
 	// make sure we don't do anything else
@@ -30,32 +51,9 @@ Vue.directive("route", function(element, binding, vnode) {
 		// internet explorer and edge do _not_ send out a popstate event when we change the hash with a href
 		// for this reason we register an onclick that is executed before the href and returns false to stop the default href behavior
 		// this gives us clean hrefs for server-side rendering / social media sharing / ... yet a functional route change in all browsers
-		element.onclick = function(event) {
-			if (!routing) {
-				routing = true;
-				if (all) {
-					vnode.context.$services.router.routeAll(alias, parameters, keys && keys.length ? keys[0] : null, mask);
-				}
-				else {
-					vnode.context.$services.router.route(alias, parameters, keys && keys.length ? keys[0] : null, mask);
-				}
-				routing = false;
-			}
-			return false;
-		};
+		element.onclick = onclick;	
 	}
 	else {
-		element.onclick = function(event) {
-			if (!routing) {
-				routing = true;
-				if (all) {
-					vnode.context.$services.router.routeAll(alias, parameters, keys && keys.length ? keys[0] : null, mask);
-				}
-				else {
-					vnode.context.$services.router.route(alias, parameters, keys && keys.length ? keys[0] : null, mask);
-				}
-				routing = false;
-			}
-		};
+		element.onclick = onclick;
 	}
 });

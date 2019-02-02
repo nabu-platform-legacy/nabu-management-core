@@ -16,6 +16,7 @@ nabu.services.SwaggerClient = function(parameters) {
 	this.parseError = parameters.parseError;
 	this.rememberHandler = parameters.remember;
 	this.remembering = false;
+	this.definitionProcessors = [];
 	
 	if (!this.executor) {
 		if (nabu.utils && nabu.utils.ajax) {
@@ -120,7 +121,18 @@ nabu.services.SwaggerClient = function(parameters) {
 		}
 		this.secure = this.swagger.schemes.indexOf("https") >= 0;
 		this.host = this.swagger.host && parameters.useHost ? (this.secure ? "https://" : "http://") + this.swagger.host : null;
+		for (var i = 0; i < this.definitionProcessors.length; i++) {
+			this.definitionProcessors[i](self);
+		}
 	}
+	
+	this.addDefinitionProcessor = function(processor) {
+		if (Object.keys(this.operations).length) {
+			processor(self);
+		}
+		this.definitionProcessors.push(processor);
+	}
+	
 	
 	// load the initial definition
 	if (parameters.definition) {
@@ -146,6 +158,7 @@ nabu.services.SwaggerClient = function(parameters) {
 		var query = {};
 		var headers = {};
 		var data = null;
+		var pathParameters = {};
 		for (var i = 0; i < operation.parameters.length; i++) {
 			// we don't check header parameters as they may be injected by the browser and or ajax library
 			if (operation.parameters[i].required && operation.parameters[i].in != "header" && (!parameters || typeof(parameters[operation.parameters[i].name]) == "undefined" || parameters[operation.parameters[i].name] == null)) {
@@ -153,7 +166,7 @@ nabu.services.SwaggerClient = function(parameters) {
 			}
 			if (parameters && parameters.hasOwnProperty(operation.parameters[i].name)) {
 				var value = parameters[operation.parameters[i].name];
-				if (operation.parameters[i].schema && !(value instanceof File)) {
+				if (operation.parameters[i].schema && !(value instanceof File) && !(value instanceof Blob)) {
 					value = this.format(operation.parameters[i].schema, value);
 				}
 				// for query parameters etc, they might not have a schema
@@ -190,6 +203,7 @@ nabu.services.SwaggerClient = function(parameters) {
 				}
 				if (operation.parameters[i].in == "path") {
 					path = path.replace(new RegExp("\{[\\s]*" + operation.parameters[i].name + "[^}]*\}"), value);
+					pathParameters[operation.parameters[i].name] = value;
 				}
 				else if (value != null && value !== "" && typeof(value) != "undefined") {
 					if (operation.parameters[i].in == "query") {
@@ -238,16 +252,27 @@ nabu.services.SwaggerClient = function(parameters) {
 			url: path,
 			data: data,
 			headers: headers,
-			definition: definition
+			definition: definition,
+			path: pathParameters,
+			query: query
 		};
 	};
 	
-	this.execute = function(name, parameters, map) {
-		var executorParameters = self.parameters(name, parameters);
-		if (map) {
-			executorParameters.map = map;
+	this.execute = function(name, parameters, map, async) {
+		var operation = self.operations[name];
+		if (operation.executor) {
+			return operation.executor(parameters, map);
 		}
-		return self.executor(executorParameters);
+		else {
+			var executorParameters = self.parameters(name, parameters);
+			if (map) {
+				executorParameters.map = map;
+			}
+			if (async != null) {
+				executorParameters.async = async;
+			}
+			return self.executor(executorParameters);
+		}
 	};
 	
 	this.format = function(definition, value) {

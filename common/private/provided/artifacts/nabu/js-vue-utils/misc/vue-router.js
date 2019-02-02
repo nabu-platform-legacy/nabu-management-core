@@ -4,6 +4,21 @@ if (!nabu.services) { nabu.services = {}; }
 if (!nabu.state) { nabu.state = {}; }
 if (!nabu.utils) { nabu.utils = {}; }
 
+/*
+TODO:
+
+recursive routing:
+
+you can add a sublist of routes to any route or you can explicitly set a "parent" on a route which is the name of another route.
+the parent route must have an anchor where we can route children by default, this anchor must be defined in the route itself (default to something like route alias + "-main")
+if the parent route indicated is an initial route, we do a full render
+
+by default every route without a parent (and not initial), is assumed to have _some_ initial route which is checked for
+
+-> how to check what is actually already routed?
+	> perhaps check the dom tree parents to see what routes they already have? if parent is already routed, leave it at that
+
+*/
 nabu.services.VueRouter = function(routerParameters) {
 	var self = this;
 	this.components = {};
@@ -37,14 +52,11 @@ nabu.services.VueRouter = function(routerParameters) {
 	this.create = function(route) {
 		if (route.enter) {
 			var originalEnter = route.enter;
-			route.enter = function(anchorName, parameters, previousRoute, previousParameters, currentRoute) {
+			route.enter = function(anchor, parameters, mask) {
 				var render = function() {
-					if (!route.$lastInstances) {
-						route.$lastInstances = {};
-					}
 					var component = null;
 					if (originalEnter) {
-						component = originalEnter(parameters, previousRoute, previousParameters, currentRoute);
+						component = originalEnter(parameters, mask);
 					}
 					else if (route.component) {
 						if (typeof(route.component) == "string") {
@@ -55,22 +67,45 @@ nabu.services.VueRouter = function(routerParameters) {
 							component = new route.component(self.useProps ? {propsData: parameters} : { data: parameters });
 						}
 					}
-					route.$lastInstances[anchorName] = nabu.utils.vue.render({
-						target: anchorName,
+					return nabu.utils.vue.render({
+						target: anchor,
 						content: component,
 						ready: function() {
 							if (route.ready) {
-								route.ready(parameters, previousRoute, previousParameters);
+								route.ready(parameters);
 							}
 						},
 						prepare: function(element) {
 							// enrich the anchor with contextually relevant information
 							element.setAttribute("route", route.alias);
+							element.leave = route.leave;
 						}
 					});
-					return route.$lastInstances[anchorName];
 				};
 				var promises = [];
+				
+				// make sure we register any leaves that can object to leaving the current route
+				var element = typeof(anchor) === "object" ? anchor : document.getElementById(anchor);
+				if (!element && anchor == "body") {
+					element = document.body;
+				}
+				if (element) {
+					var leaver = function(element) {
+						for (var i = 0; i < element.childNodes.length; i++) {
+							if (element.childNodes[i].nodeType == 1) {
+								leaver(element.childNodes[i]);
+							}
+						}
+						if (element.leave) {
+							var result = element.leave(element);
+							if (result && result.then) {
+								promises.push(result);
+							}
+						}
+					}
+					leaver(element);
+				}
+				
 				// initialize any lazy services
 				if (route.services && routerParameters.services) {
 					for (var i = 0; i < route.services.length; i++) {
@@ -94,82 +129,27 @@ nabu.services.VueRouter = function(routerParameters) {
 						}
 					}
 				}
+
 				var promise = new nabu.utils.promise();
 				new nabu.utils.promises(promises).then(function() {
 					promise.resolve(render());
-				});
+				}, promise);
 				return promise;
 			};
 		}
 		var originalLeave = route.leave;
-		route.leave = function(anchorName, currentParameters, newRoute, newParameters) {
-			var anchor = nabu.utils.anchors.find(anchorName);
-			if (anchor) {
-				for (var i = 0; i < anchor.$el.attributes.length; i++) {
-					if (anchor.$el.attributes[i].name != "id") {
-						anchor.$el.removeAttribute(anchor.$el.attributes[i].name);
-					}
-				}
+		route.leave = function(element) {
+			if (element) {
+				// removing this while routing to the same thing (with an activate so a delayed render)
+				// means that the attribute is immediately removed (disabling styling based on it) and only reintroduced with a delay
+				// this causes visual flickering
+				//element.removeAttribute("route");
+				delete element.leave;
 			}
 			if (originalLeave) {
-				originalLeave(currentParameters, newRoute, newParameters);
+				originalLeave(element);
 			}
 		};
 		return route;
 	};
 }
-
-nabu.components.Anchor = Vue.component("anchor", {
-	props: ["id", "hidden"],
-	template: "<div id=\"{{ id }}\"><slot></slot></div>",
-	created: function() {
-		if (!nabu.state.anchors) {
-			nabu.state.anchors = [];
-		}
-		// if an anchor already exists with this id, remove it
-		var currentAnchor = nabu.utils.anchors.find(this.id);
-		if (currentAnchor) {
-			nabu.state.anchors.splice(nabu.state.anchors.indexOf(currentAnchor, 1));
-		}
-		// then add this anchor
-		nabu.state.anchors.push(this);
-	},
-	activated: function() {
-		if (this.hidden) {
-			this.$el.style.display = "none";
-		}
-	},
-	methods: {
-		hide: function() {
-			if (!this.hidden) {
-				this.hidden = true;
-				this.$el.style.display = "none";
-			}
-		},
-		show: function() {
-			if (this.hidden) {
-				this.hidden = false;
-				this.$el.style.display = "block";
-			}
-		},
-		clear: function() {
-			while (this.$el.firstChild) {
-				this.$el.removeChild(this.$el.firstChild);
-			}
-		}
-	}
-});
-
-
-nabu.utils.anchors = {
-	find: function(id) {
-		if (nabu.state.anchors) {
-			for (var i = 0; i < nabu.state.anchors.length; i++) {
-				if (nabu.state.anchors[i].id == id) {
-					return nabu.state.anchors[i];
-				}
-			}
-		}
-		return null;
-	}
-};

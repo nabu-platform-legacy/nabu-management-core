@@ -3,15 +3,15 @@
 		<slot name="top"></slot>
 		
 		<n-form-text class="n-form-date-input" 
-			@focus="show = edit && !disabled" 
-			:pattern="pattern ? pattern : '^[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$'" 
+			@focus="showPopup" 
+			:pattern="pattern ? pattern : dynamicPattern" 
 			v-model="date" 
 			:placeholder="placeholder"
 			:label="label"
 			:edit="edit"
 			:required="required"
 			:name="name"
-			:schema="schema"
+			:schema="customizedSchema"
 			:minLength="minLength"
 			:maxLength="maxLength"
 			type="text"
@@ -19,7 +19,8 @@
 			:disabled="disabled"
 			:validator="dateValidate"
 			:unique="unique"
-			ref="text">
+			ref="text"
+			:timeout="timeout">
 			
 			<span slot="after-input" class="n-icon fa n-form-date-icon" 
 				:class="{ 'n-icon-calendar': !show, 'fa-calendar-alt': !show, 'n-icon-times': show, 'fa-times': show, 'n-form-date-icon-show': show }" @click="edit && !disabled ? show = !show : show = false" v-show="edit"></span>
@@ -33,6 +34,9 @@
 			:allow="allow"
 			v-show="show" 
 			v-model="date"
+			:includeHours="includeHours"
+			:includeMinutes="includeMinutes"
+			:includeSeconds="includeSeconds"
 			ref="dateInput"/>
 		
 		<slot name="bottom">

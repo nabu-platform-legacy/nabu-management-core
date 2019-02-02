@@ -23,7 +23,7 @@ Vue.directive("route-render", {
 							vnode.context.$refs[keys[0]] = component;
 						}
 					}
-					if (binding.value.mounted) {
+					if (binding.value && binding.value.mounted) {
 						binding.value.mounted(component);
 					}
 				});

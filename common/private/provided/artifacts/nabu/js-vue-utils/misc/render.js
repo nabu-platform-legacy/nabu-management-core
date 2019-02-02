@@ -9,12 +9,9 @@ if (!nabu.utils.vue) { nabu.utils.vue = {}; }
 // - ready: a function called when it was successfully added
 // - append: if set to true, it doesn't clear the content
 nabu.utils.vue.render = function(parameters) {
-	var anchor = typeof(parameters.target) === "object" ? parameters.target : nabu.utils.anchors.find(parameters.target);
-	if (!anchor) {
-		anchor = document.getElementById(parameters.target);
-		if (!anchor && parameters.target == "body") {
-			anchor = document.body;
-		}
+	var anchor = typeof(parameters.target) === "object" ? parameters.target : document.getElementById(parameters.target);
+	if (!anchor && parameters.target == "body") {
+		anchor = document.body;
 	}
 	if (!anchor) {
 		throw "Target not found: " + parameters.target + " in: " + document.body.innerHTML;

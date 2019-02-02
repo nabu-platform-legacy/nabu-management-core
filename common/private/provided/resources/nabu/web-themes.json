@@ -1,0 +1,13 @@
+{
+	"name": "nabu-theme", 
+	"resources": {
+		"basic.json": {
+			"url": "basic.json",
+			"type": "bundle"
+		},
+		"nabu.json": {
+			"url": "nabu/bundle.json",
+			"type": "bundle"
+		}
+	}
+}

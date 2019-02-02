@@ -43,7 +43,9 @@ nabu.services.VueService = function(component, parameters) {
 								}
 							}
 						}
-						resultingPromise.resolve(resultingService ? resultingService : instance);
+						// don't allow a service instance to be returned in the done by default
+						//resultingPromise.resolve(resultingService ? resultingService : instance);
+						resultingPromise.resolve(instance);
 					}, resultingPromise);
 					return resultingPromise;
 				}
@@ -51,7 +53,9 @@ nabu.services.VueService = function(component, parameters) {
 					var promise = $services.q.defer();
 					var done = function(result) {
 						callActivated();
-						promise.resolve(result ? result : instance);
+						// don't allow a service instance to be returned in the done by default
+						//promise.resolve(result ? result : instance);
+						promise.resolve(instance);
 					};
 					instance.$options.activate.call(instance, done);
 					return promise;

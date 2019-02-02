@@ -5,7 +5,7 @@ Vue.directive("auto-close", {
 		var keys = binding.modifiers ? Object.keys(binding.modifiers) : null;
 		element["$n-auto-close-listener"] = function(event) {
 			// it still has to be in the document to be valid
-			var close = event.target != element && !element.contains(event.target) && document.contains(event.target);
+			var close = event.target != element && !element.contains(event.target) && document.body.contains(event.target);
 			if (!close && element.contains(event.target)) {
 				var find = event.target;
 				var attribute = "auto-close";
