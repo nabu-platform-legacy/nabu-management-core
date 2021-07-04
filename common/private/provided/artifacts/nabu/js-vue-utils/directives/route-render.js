@@ -26,9 +26,35 @@ Vue.directive("route-render", {
 					if (binding.value && binding.value.mounted) {
 						binding.value.mounted(component);
 					}
+					if (vnode.context.$children) {
+						vnode.context.$children.push(component);
+						component.$parent = vnode.context;
+					}
+					if (vnode.context.$root) {
+						component.$root = vnode.context.$root;
+					}
 				});
 			}
-			element["n-route-render-route-json"] = JSON.stringify(parameters);
+			var cloneParameters = function(parameters) {
+				var result = {};
+				Object.keys(parameters).forEach(function(x) {
+					// page and cell are just big...
+					if (x != "page" && x != "cell") {	//  && x != "parameters"
+						result[x] = parameters[x];
+					}
+				});
+				return result;
+			}
+			var lightParameters = {
+				alias: binding.arg ? binding.arg : binding.value.alias,
+				parameters: cloneParameters(binding.arg ? binding.value : binding.value.parameters)
+			}
+			try {
+				element["n-route-render-route-json"] = JSON.stringify(lightParameters);
+			}
+			catch (exception) {
+				console.warn("Could not marshal route render parameters", exception);				
+			}
 			element["n-route-render-route"] = parameters;
 		});
 	},
@@ -52,6 +78,17 @@ Vue.directive("route-render", {
 		// the update can be called before the insert + nextTick has initially triggered
 		// we only want to re-render if we have rendered in the first place
 		// otherwise we can have multiple renders
+		// this stripping is currently focused on page-builder, in the future we should extract this to a configurable set of parameters
+		var cloneParameters = function(parameters) {
+			var result = {};
+			Object.keys(parameters).forEach(function(x) {
+				// page and cell are just big...
+				if (x != "page" && x != "cell") {	//  && x != "parameters"
+					result[x] = parameters[x];
+				}
+			});
+			return result;
+		}
 		if (element["n-route-render-route"]) {
 			var keys = binding.modifiers ? Object.keys(binding.modifiers) : null;
 		
@@ -59,11 +96,27 @@ Vue.directive("route-render", {
 				alias: binding.arg ? binding.arg : binding.value.alias,
 				parameters: binding.arg ? binding.value : binding.value.parameters
 			}
+			
+			var lightParameters = {
+				alias: binding.arg ? binding.arg : binding.value.alias,
+				parameters: cloneParameters(binding.arg ? binding.value : binding.value.parameters)
+			}
 		
-			var isExactCopy = element["n-route-render-route-json"] == JSON.stringify(parameters);
+			var stringifiedParameters = null;
+			// note that this was added because of page-arbitrary which contains non-serializable parameters
+			// should page-arbitrary not update properly, we can have another look at this
+			try {
+				stringifiedParameters = JSON.stringify(lightParameters);
+			}
+			catch (exception) {
+				console.warn("Could not marshal route render parameters", exception);
+			}
+			// if we can't stringify the parameters, assume it is not updated
+			// otherwise we end up in an infinite update loop
+			var isExactCopy = stringifiedParameters == null || element["n-route-render-route-json"] == stringifiedParameters;
 		
 			if (!isExactCopy) {
-				element["n-route-render-route-json"] = JSON.stringify(parameters);
+				element["n-route-render-route-json"] = stringifiedParameters;
 			
 				var isSameAlias = element["n-route-render-route"]
 					&& element["n-route-render-route"].alias == parameters.alias;
@@ -87,13 +140,25 @@ Vue.directive("route-render", {
 
 				if (!isSame) {
 					element["n-route-render-route"] = parameters;
-
 					if (!binding.value.rerender || binding.value.rerender()) {
 						// in a past version, we required a different alias as well before we rerendered
 						// perhaps we can do a strict mode?
 						var result = vnode.context.$services.router.route(parameters.alias, parameters.parameters, element, true);
 						if (result && result.then) {
 							result.then(function(component) {
+								if (vnode.context.$children) {
+									if (element["n-route-component"]) {
+										var index = vnode.context.$children.indexOf(element["n-route-component"]);
+										if (index >= 0) {
+											vnode.context.$children.splice(index, 1);
+										}
+									}
+									vnode.context.$children.push(component);
+									component.$parent = vnode.context;
+								}
+								if (vnode.context.$root) {
+									component.$root = vnode.context.$root;
+								}
 								element["n-route-component"] = component;
 								if (keys && keys.length) {
 									if (vnode.context[keys[0]] instanceof Function) {
@@ -114,3 +179,4 @@ Vue.directive("route-render", {
 		}
 	}
 });
+

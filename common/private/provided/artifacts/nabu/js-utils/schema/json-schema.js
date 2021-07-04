@@ -3,6 +3,88 @@ if (!nabu.utils) { nabu.utils = {} }
 if (!nabu.utils.schema) { nabu.utils.schema = {} }
 if (!nabu.utils.schema.json) { nabu.utils.schema.json = {} }
 
+nabu.utils.schema.addAsyncValidation = function(validations, promise, mapper) {
+	if (validations.promises == null) {
+		validations.promises = [];
+		
+		var originalFilter = validations.filter;
+		validations.filter = function() {
+			return nabu.utils.schema.addAsyncValidation(originalFilter.apply(validations, arguments));
+		}
+		
+		var originalMap = validations.map;
+		validations.map = function() {
+			return nabu.utils.schema.addAsyncValidation(originalMap.apply(validations, arguments));
+		}
+	}
+	if (validations.defer == null) {
+		validations.defer = function(promise, mapper) {
+			return nabu.utils.schema.addAsyncValidation(validations, promise, mapper);
+		}
+	}
+	if (promise != null) {
+		// we add the result of the promise to the validations themselves
+		promise.then(function(result) {
+			result = mapper != null && result != null ? mapper(result) : result;
+			// we support the default result array from the backend
+			// where unfortunately we have  "message" instead of a "title". where and when this discrepancy was introduced is unclear
+			if (result != null && !(result instanceof Array)) {
+				Object.keys(result).forEach(function(key) {
+					if (result != null && !(result instanceof Array) && result[key] instanceof Array) {
+						result = result[key].map(function(x) {
+							if (x.title == null && x.message != null) {
+								x.title = x.message;
+							}
+							if (x.severity != null) {
+								x.severity = x.severity.toLowerCase();
+							}
+							return x;
+						});
+						result = result.filter(function(x) {
+							return x.severity == "error";
+						});
+					}
+				});
+			}
+			if (result instanceof Array && result.length > 0) {
+				nabu.utils.arrays.merge(validations, result);
+			}
+		});
+		// we want to support other "enhanced" arrays better
+		if (promise.promises instanceof Array) {
+			nabu.utils.arrays.merge(validations.promises, promise.promises);	
+		}
+		else {
+			// we add the promise so we can wait on it after
+			validations.promises.push(promise);
+		}
+	}
+	if (validations.then == null) {
+		validations.then = function(successHandler, errorHandler, progressHandler) {
+			new nabu.utils.promises(validations.promises).then(function() {
+				if (successHandler instanceof Function) {
+					successHandler(validations);
+				}
+				else if (successHandler.resolve) {
+					successHandler.resolve(validations);
+				}
+			}, function(error) {
+				validations.push({
+					code: "internal",
+					title: "%{An internal error has occurred}"
+				});
+				if (successHandler instanceof Function) {
+					successHandler(validations);
+				}
+				else {
+					successHandler.resolve(validations);
+				}
+			}, progressHandler);
+		}
+	}
+	return validations;
+};
+	
 // formats a value according to the definition
 // will throw an exception if the value is not valid according to the schema
 nabu.utils.schema.json.format = function(definition, value, resolver) {
@@ -15,7 +97,18 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 		}
 	}
 	if (definition.type == "string") {
-		if (definition.format == "date" && value instanceof Date) {
+		if (definition.format == "binary" || definition.format == "byte") {
+			if (value instanceof File || value instanceof Blob) {
+				return value;
+			}
+			else if (typeof(value) == "string" || value instanceof Date) {
+				return new Blob([value], {type : 'text/plain'});
+			}
+			else {
+				return new Blob([JSON.stringify(value, null, 2)], {type : 'application/json'});
+			}
+		}
+		else if (definition.format == "date" && value instanceof Date) {
 			// depending on how you constructed the date, the time part may be local time or not
 			// e.g. new Date("2018-01-01") is interpreted as 0 UTC (so 1 CET) and getting the date component is UTC is the same day
 			// if you do new Date(2018, 1, 1), it is interpreted as 0 local time (so -1 vs UTC) and transforming to UTC gets you the previous day
@@ -25,8 +118,11 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 		else if (definition.format == "date-time" && value instanceof Date) {
 			return value.toISOString();
 		}
+		if (value === false) {
+			return "false";
+		}
 		// empty strings are interpreted as null
-		if (!value) {
+		else if (!value) {
 			return null;
 		}
 		else {
@@ -35,7 +131,7 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 	}
 	else if (definition.type == "number" || definition.type == "integer") {
 		if (typeof(value) === "number") {
-			return value;
+			return definition.type == "integer" ? parseInt(value) : value;
 		}
 		// undefined, empty string,... just return null
 		else if (!value) {
@@ -45,6 +141,9 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 			var number = new Number(value);
 			if (isNaN(number)) {
 				throw "Not a number: " + value;
+			}
+			if (definition.type == "integer") {
+				number = parseInt(number);
 			}
 			return number;
 		}
@@ -78,6 +177,10 @@ nabu.utils.schema.json.format = function(definition, value, resolver) {
 		return result;
 	}
 	else if (definition.type == "object") {
+		// if we have no value, don't create an empty object
+		if (value == null) {
+			return null;
+		}
 		var result = {};
 		if (definition.properties) {
 			for (var key in definition.properties) {
@@ -123,7 +226,7 @@ nabu.utils.schema.json.normalize = function(definition, value, resolver, createN
 			return null;
 		}
 	}
-	else if (definition.type == "object") {
+	else if (definition.type == "object" || (definition.type == null && definition.properties)) {
 		if (definition.properties) {
 			for (key in definition.properties) {
 				if (typeof(value[key]) == "undefined") {
@@ -152,6 +255,9 @@ nabu.utils.schema.json.normalize = function(definition, value, resolver, createN
 	}
 	else if (value && definition.type == "string" && (definition.format == "date" || definition.format == "date-time")) {
 		value = new Date(value);
+	}
+	else if (typeof(value) == "string" && definition.type == "boolean") {
+		value = value == "true";
 	}
 	return value;
 }
@@ -232,11 +338,11 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 		});
 	}
 	var minLength = function(value, minLength) {
-		if (typeof(minLength) !== "undefined" && result.length < minLength) {
+		if (minLength != null && result.length < minLength) {
 			messages.push({
 				severity: "error",
 				code: "minLength",
-				title: "%{validation:The value '{actual}' must be at least {expected} long}",
+				title: "%{validation:The value must be at least {expected} long}",
 				priority: -2,
 				values: {
 					actual: result.length,
@@ -247,11 +353,11 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 		}
 	}
 	var maxLength = function(value, maxLength) {
-		if (typeof(minLength) !== "undefined" && result.length > maxLength) {
+		if (maxLength != null && result.length > maxLength) {
 			messages.push({
 				severity: "error",
 				code: "maxLength",
-				title: "%{validation:The value '{actual}' can be at most {expected} long}",
+				title: "%{validation:The value can be at most {expected} long}",
 				priority: -2,
 				values: {
 					actual: result.length,
@@ -262,7 +368,7 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 		}
 	}
 	var pattern = function(value, pattern, patternComment) {
-		if (typeof(pattern) !== "undefined" && !result.match(pattern)) {
+		if (pattern != null && !result.match(pattern)) {
 			messages.push({
 				severity: "error",
 				code: "pattern",
@@ -277,11 +383,11 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 		}
 	}
 	var maximum = function(value, maximum, exclusiveMaximum) {
-		if (typeof(value) !== "undefined" && ( (typeof(exclusiveMaximum) !== "undefined" && value >= exclusiveMaximum) || (typeof(maximum) !== "undefined" && value > maximum) )) {
+		if (value != null && ( (exclusiveMaximum != null && exclusiveMaximum && value >= maximum) || (maximum != null && value > maximum) )) {
 			messages.push({
 				severity: "error",
 				code: "maximum",
-				title: "%{validation:The value {actual} is bigger than the allowed maximum of {expected}}",
+				title: exclusiveMaximum != null ? "%{validation:The value {actual} should be smaller than {expected}}" : "%{validation:The value {actual} should be smaller than or equal to {expected}}",                
 				priority: -2,
 				values: {
 					actual: value,
@@ -293,11 +399,11 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 		}
 	}
 	var minimum = function(value, minimum, exclusiveMinimum) {
-		if (typeof(value) !== "undefined" && ( (typeof(exclusiveMinimum) !== "undefined" && value <= exclusiveMinimum) || (typeof(minimum) !== "undefined" && value < minimum) )) {
+		if (value != null && ( (exclusiveMinimum != null && exclusiveMinimum && value <= minimum) || (minimum != null && value < minimum) )) {
 			messages.push({
 				severity: "error",
 				code: "minimum",
-				title: "%{validation:The value {actual} is smaller than the allowed minimum of {expected}}",
+				title: exclusiveMinimum != null ? "%{validation:The value {actual} should be bigger than {expected}}" : "%{validation:The value {actual} should be bigger than or equal to {expected}}",
 				priority: -2,
 				values: {
 					actual: value,
@@ -324,7 +430,7 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 		}
 	}
 	var maxItems = function(value, maxItems) {
-		if (typeof(maxItems) !== "undefined" && value.length > maxItems) {
+		if (maxItems != null && value.length > maxItems) {
 			messages.push({
 				severity: "error",
 				code: "maxItems",
@@ -339,7 +445,7 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 		}
 	}
 	var minItems = function(value, minItems) {
-		if (typeof(minItems) !== "undefined" && value.length < minItems) {
+		if (minItems != null && value.length < minItems) {
 			messages.push({
 				severity: "error",
 				code: "minItems",
@@ -385,8 +491,8 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 			}
 		}
 		if (result != null) {
-			maximum(value, definition.maximum, definition.exclusiveMaximum);
-			minimum(value, definition.minimum, definition.exclusiveMinimum);
+			maximum(result, definition.maximum, definition.exclusiveMaximum);
+			minimum(result, definition.minimum, definition.exclusiveMinimum);
 		}
 		else {
 			missing();
@@ -439,5 +545,8 @@ nabu.utils.schema.json.validate = function(definition, value, required, resolver
 			}
 		}
 	}
+	nabu.utils.schema.addAsyncValidation(messages);
 	return messages;
 };
+
+

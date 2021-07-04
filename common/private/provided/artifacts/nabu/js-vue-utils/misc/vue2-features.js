@@ -114,3 +114,79 @@ Vue.mixin({
 		$self: function() { return this }
 	}
 });
+
+Vue.views = {};
+Vue.services = {};
+Vue.view = function(name, component) {
+	if (component) {
+		// assume template id matches
+		if (component.template == null) {
+			component.template = "#" + name;
+		}
+		Vue.views[name] = {
+			original: component,
+			component: Vue.extend(component)
+		};
+		
+	}
+	return Vue.views[name].component;
+};
+Vue.service = function(name, component, parameters) {
+	if (component) {
+		Vue.services[name] = nabu.services.VueService(Vue.extend(component, parameters));
+	}
+	return Vue.services[name];
+};
+
+window.addEventListener("load", function () {
+	application.bootstrap(function($services) {
+		Object.keys(Vue.views).map(function(name) {
+			var component = Vue.views[name].original;
+			var route = { 
+				alias: name,
+				category: component.category,
+				description: component.description,
+				name: component.name,
+				icon: component.icon,
+				enter: function(properties) {
+					var component = Vue.view(name);
+					return new component({propsData: properties});
+				},
+				query: []
+			};
+			if (component.url) {
+				route.url = component.url;
+			}
+			if (component.props) {
+				Object.keys(component.props).map(function(key) {
+					// if it does not exist in the url, assume query parameter
+					if (!route.url || route.url.indexOf("{" + key + "}") < 0) {
+						route.query.push(key);
+					}
+				});
+			}
+			$services.router.register(route);
+		});
+		return $services.$register(Vue.services);
+	});
+});
+
+Vue.component("n-view", {
+	template: "<div v-route-render='{alias: alias, parameters: $attrs, mounted: register }'></div>",
+	props: {
+		alias: {
+			type: String,
+			required: true
+		}
+	},
+	methods: {
+		register: function(component) {
+			if (this.$listeners) {
+				var self = this;
+				Object.keys(this.$listeners).forEach(function(event) {
+					component.$on(event, self.$listeners[event]);
+				})
+			}
+		}
+	}
+});

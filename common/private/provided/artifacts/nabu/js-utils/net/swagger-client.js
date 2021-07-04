@@ -17,10 +17,16 @@ nabu.services.SwaggerClient = function(parameters) {
 	this.rememberHandler = parameters.remember;
 	this.remembering = false;
 	this.definitionProcessors = [];
+	this.language = "${language()}";
+	this.bearer = parameters.bearer;
+	this.toggledFeatures = [];
 	
 	if (!this.executor) {
 		if (nabu.utils && nabu.utils.ajax) {
 			this.executor = function(parameters) {
+				if (self.language) {
+					parameters.language = self.language;
+				}
 				var promise = new nabu.utils.promise();
 				if (parameters.map) {
 					promise.map(parameters.map);
@@ -36,12 +42,25 @@ nabu.services.SwaggerClient = function(parameters) {
 					else if (contentType && contentType.indexOf("text/html") >= 0) {
 						response = response.responseText;
 					}
+					else if (response.status == 204) {
+						response = null;
+					}
+					// we are never (?) interested in the original XMLHTTPRequest
+					else {
+						if (!response.responseText) {
+							response = null;
+						}
+						else {
+							response = response.responseText;
+						}
+					}
+					// TODO: are you ever interested in anything else but the response text?
 					promise.resolve(response);
 				}, function(error) {
 					var requireAuthentication = error.status == 401;
 					if (self.parseError) {
 						var contentType = error.getResponseHeader("Content-Type");
-						if (contentType && contentType.indexOf("application/json") >= 0) {
+						if (contentType && (contentType.indexOf("application/json") >= 0 || contentType.indexOf("application/problem+json") >= 0)) {
 							error = JSON.parse(error.responseText);
 						}
 					}
@@ -113,8 +132,9 @@ nabu.services.SwaggerClient = function(parameters) {
 						path: path,
 						method: method,
 						responses: operation.responses,
-						consumes: operation.consumers,
-						produces: operation.produces
+						consumes: operation.consumes,
+						produces: operation.produces,
+						security: operation.security
 					}
 				});
 			});
@@ -159,6 +179,7 @@ nabu.services.SwaggerClient = function(parameters) {
 		var headers = {};
 		var data = null;
 		var pathParameters = {};
+		
 		for (var i = 0; i < operation.parameters.length; i++) {
 			// we don't check header parameters as they may be injected by the browser and or ajax library
 			if (operation.parameters[i].required && operation.parameters[i].in != "header" && (!parameters || typeof(parameters[operation.parameters[i].name]) == "undefined" || parameters[operation.parameters[i].name] == null)) {
@@ -166,7 +187,7 @@ nabu.services.SwaggerClient = function(parameters) {
 			}
 			if (parameters && parameters.hasOwnProperty(operation.parameters[i].name)) {
 				var value = parameters[operation.parameters[i].name];
-				if (operation.parameters[i].schema && !(value instanceof File) && !(value instanceof Blob)) {
+				if (operation.parameters[i].schema) {
 					value = this.format(operation.parameters[i].schema, value);
 				}
 				// for query parameters etc, they might not have a schema
@@ -246,7 +267,7 @@ nabu.services.SwaggerClient = function(parameters) {
 		if (definition && definition.$ref) {
 			definition = this.definition(definition.$ref);
 		}
-		return {
+		var result = {
 			method: operation.method,
 			host: self.host,
 			url: path,
@@ -256,6 +277,25 @@ nabu.services.SwaggerClient = function(parameters) {
 			path: pathParameters,
 			query: query
 		};
+		// if if no security is explicitly required, it can be interesting to pass it along
+		// the service might want to differentiate internally
+		if (self.bearer) { // operation.security
+			result.bearer = self.bearer;
+		}
+		// if the operation only accepts octet-stream, let's do that
+		if (operation.consumes && operation.consumes.length == 1 && operation.consumes[0] == "application/octet-stream") {
+			result.contentType = "application/octet-stream";
+		}
+		if (self.toggledFeatures.length) {
+			result.headers.Feature = "";
+			self.toggledFeatures.forEach(function(x) {
+				if (result.headers.Feature != "") {
+					result.headers.Feature += ";";
+				}
+				result.headers.Feature += x.name + "=" + (x.enabled == true);
+			});
+		}
+		return result;
 	};
 	
 	this.execute = function(name, parameters, map, async) {
@@ -296,6 +336,9 @@ nabu.services.SwaggerClient = function(parameters) {
 	this.resolve = function(element, resolved) {
 		if (!resolved) {
 			return this.resolve(element, {});
+		}
+		if (typeof(element) == "string") {
+			element = this.definition(element);
 		}
 		var self = this;
 		if (element.schema && element.schema["$ref"]) {
@@ -362,3 +405,5 @@ nabu.services.SwaggerBatchClient = function(parameters) {
 		throw "Unknown operation: " + name;	
 	};
 };
+
+

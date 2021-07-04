@@ -48,6 +48,9 @@
 			}, 
 			"bubble.js": {
 				"url": "directives/bubble.js"
+			},
+			"swipe.js": {
+				"url": "directives/swipe.js"
 			}
 		}, 
 		"vue": {

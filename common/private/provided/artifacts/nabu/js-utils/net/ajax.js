@@ -35,9 +35,13 @@ parameters:
 	params: an associative array which acts as data in a post and url parameters in a get
 	contentType: the content type of the data,
 	binary: boolean to indicate whether content should be sent as binary blob (automatically set for image content types),
-	progress: a handler that is triggered periodically on progress of request
+	progress: a handler that is triggered periodically on progress of request,
+	cache: false: whether or not to cache the result
+	language: the language you want to set
+	bearer: the bearer token you want to set (if any)
 */
 nabu.utils.ajax = function(parameters) {
+	var enableCaching = ${environment("mobile") == true};
 	var newXmlHttpRequest = function() {
 		if (window.XMLHttpRequest) {
 			// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -69,6 +73,11 @@ nabu.utils.ajax = function(parameters) {
 
 	if (!parameters.url) {
 		throw "Could not find url";
+	}
+
+	// in mobile mode, we want to explicitly target the server
+	if (!parameters.host && ${environment("mobile") == true}) {
+		parameters.host = "${environment('url')}";
 	}
 
 	// if we have a host, prefix it to the url
@@ -180,6 +189,16 @@ nabu.utils.ajax = function(parameters) {
 			// response loaded
 			case 4:
 				if (request.status >= 200 && request.status < 300) {
+					// if we have an etag, cache it as well
+					if (enableCaching && (parameters.cache || request.getResponseHeader("ETag")) && request.responseText) {
+						var key = JSON.stringify(parameters);
+						localStorage.setItem(key, JSON.stringify({
+							status: request.status,
+							statusText: request.statusText,
+							responseText: request.responseText,
+							contentType: request.getResponseHeader("Content-Type")
+						}));
+					}
 					if (parameters.success) {
 						parameters.success(request);
 					}
@@ -192,9 +211,31 @@ nabu.utils.ajax = function(parameters) {
 					promise.succeed(request);
 				}
 				// this indicates that the http request was aborted
+				// seems to be the response in case of offline - tested in airplane mode on android
 				else if (request.status == 0) {
-					if (parameters.cancelled) {
+					var responded = false;
+					var response = null;
+					// always check cache
+					if (enableCaching) {
+						var key = JSON.stringify(parameters);
+						response = localStorage.getItem(key);
+					}
+					if (response != null) {
+						responded = true;
+						var result = JSON.parse(response);
+						result.getResponseHeader = function(header) {
+							if (header.toLowerCase() == "content-type") {
+								return result.contentType;
+							}
+							return null;
+						};
+						promise.resolve(result);
+					}
+					if (parameters.cancelled && !responded) {
 						parameters.cancelled(request);
+					}
+					if (!responded) {
+						promise.fail(request);
 					}
 				}
 				else {
@@ -217,17 +258,64 @@ nabu.utils.ajax = function(parameters) {
 		request.setRequestHeader("Accept", "application/json");		//, text/html
 	}
 
+	// encoding file/blob to base64 is async, need a promise to contain it
+	var encodingPromises = [];
+	var encodingPromise = null;
+	
 	// need to add these headers for post
 	if (parameters.method.toUpperCase() == "POST" || parameters.method.toUpperCase() == "PUT" || parameters.method.toUpperCase() == "DELETE" || parameters.method.toUpperCase() == "PATCH") {
 		// if we are sending an object as data, jsonify it
 		if (parameters.data && typeof(parameters.data) == "object" && !(parameters.data instanceof File) && !(parameters.data instanceof Blob)) {
-			parameters.data = JSON.stringify(parameters.data);
+			var isObject = function(object) {
+				return typeof(object) == "object" && !(object instanceof File) && !(object instanceof Blob) 
+					&& !(object instanceof Date) && !(object instanceof Array);
+			}
+			var baseEncode = function(object) {
+				var keys = Object.keys(object);
+				keys.filter(function(key) { return object[key] instanceof Blob || object[key] instanceof File }).map(function(key) {
+					var reader = new FileReader();
+					reader.readAsDataURL(object[key]);
+					var promise = new nabu.utils.promise();
+					encodingPromises.push(promise);
+					reader.onload = function() {
+						var result = reader.result;
+						var index = result.indexOf(",");
+						object[key] = result.substring(index + 1);
+						promise.resolve();
+					};
+				});
+				// encode recursively
+				keys.forEach(function(key) {
+					if (object[key] instanceof Array && object[key].length) {
+						object[key].forEach(function(instance) {
+							if (isObject(instance)) {
+								baseEncode(instance);
+							}
+						})
+					}
+					else if (isObject(object[key])) {
+						baseEncode(object[key]);
+					}
+				});
+			}
+			baseEncode(parameters.data);
+			if (encodingPromises.length) {
+				encodingPromise = new nabu.utils.promises(encodingPromises);
+			}
+			if (encodingPromise != null) {
+				encodingPromise.then(function() {
+					parameters.data = JSON.stringify(parameters.data);		
+				});
+			}
+			else {
+				parameters.data = JSON.stringify(parameters.data);
+			}
 			parameters.contentType = "application/json";
 		}
 		else if (parameters.data instanceof File) {
 			if (parameters.data.name) {
 				request.setRequestHeader("Content-Disposition", "attachment; filename=" + parameters.data.name);
-				if (!parameters.contentType) {
+				if (!parameters.contentType || parameters.contentType == "application/octet-stream") {
 					if (parameters.data.name.match(/.*\.png/i)) {
 						parameters.contentType = "image/png";
 					}
@@ -261,8 +349,23 @@ nabu.utils.ajax = function(parameters) {
 	else {
 		parameters.data = null;
 	}
-
-	request.send(parameters.data ? parameters.data : null);
+	
+	if (parameters.language) {
+		request.setRequestHeader("Accept-Language", parameters.language);
+	}
+	
+	if (parameters.bearer) {
+		request.setRequestHeader("Authorization", "Bearer " + parameters.bearer);
+	}
+	
+	if (encodingPromise != null) {
+		encodingPromise.then(function() {
+			request.send(parameters.data ? parameters.data : null);	
+		});
+	}
+	else {
+		request.send(parameters.data ? parameters.data : null);
+	}
 	return promise;
 }
 
@@ -283,3 +386,5 @@ nabu.utils.binary = {
 		return new Blob(bytes, { type: contentType });
 	}
 };
+
+

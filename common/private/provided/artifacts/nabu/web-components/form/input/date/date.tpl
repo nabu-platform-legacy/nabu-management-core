@@ -5,6 +5,7 @@
 		<n-form-text class="n-form-date-input" 
 			@focus="showPopup" 
 			:pattern="pattern ? pattern : dynamicPattern" 
+			:pattern-comment="patternComment"
 			v-model="date" 
 			:placeholder="placeholder"
 			:label="label"
@@ -16,13 +17,19 @@
 			:maxLength="maxLength"
 			type="text"
 			:hide="hide"
-			:disabled="disabled"
+			:disabled="disableTextInput || disabled"
 			:validator="dateValidate"
 			:unique="unique"
+			:info="info"
+			:before="before"
+			:after="after"
+			:description="description"
+			:descriptionIcon="descriptionIcon"
+			:descriptionType="descriptionType"
 			ref="text"
 			:timeout="timeout">
 			
-			<span slot="after-input" class="n-icon fa n-form-date-icon" 
+			<span slot="suffix" class="n-form-suffix n-icon fa n-form-date-icon" 
 				:class="{ 'n-icon-calendar': !show, 'fa-calendar-alt': !show, 'n-icon-times': show, 'fa-times': show, 'n-form-date-icon-show': show }" @click="edit && !disabled ? show = !show : show = false" v-show="edit"></span>
 		</n-form-text>
 		
@@ -39,7 +46,7 @@
 			:includeSeconds="includeSeconds"
 			ref="dateInput"/>
 		
-		<slot name="bottom">
+		<slot name="messages">
 			<n-messages :messages="messages" v-if="messages && messages.length"/>
 		</slot>
 	</div>

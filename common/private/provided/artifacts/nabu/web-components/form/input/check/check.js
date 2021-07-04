@@ -53,6 +53,26 @@ Vue.component("n-form-checkbox", {
 			type: Boolean,
 			required: false,
 			default: false
+		},
+		info: {
+			type: String,
+			required: false
+		},
+		infoIcon: {
+			type: String,
+			required: false
+		},
+		before: {
+			type: String,
+			required: false
+		},
+		after: {
+			type: String,
+			required: false
+		},
+		labelBefore: {
+			type: Boolean,
+			required: false
 		}
 	},
 	template: "#n-form-checkbox",
@@ -64,7 +84,12 @@ Vue.component("n-form-checkbox", {
 		};
 	},
 	created: function() {
-		this.calculatedValue = this.invertIfNecessary(this.value instanceof Array ? this.value.indexOf(this.item) >= 0 : this.value);
+		if (this.value === "false") {
+			this.calculatedValue = false;
+		}
+		else {
+			this.calculatedValue = this.invertIfNecessary(this.value instanceof Array ? this.value.indexOf(this.item) >= 0 : this.value);
+		}
 	},
 	computed: {
 		definition: function() {
@@ -82,13 +107,19 @@ Vue.component("n-form-checkbox", {
 			// if the checkbox is set to mustCheck but the calculated value is null, false or undefined or anything but true, we imitate a null value to trigger the mandatory validation
 			var messages = nabu.utils.schema.json.validate(this.definition, this.mustCheck && !this.calculatedValue ? null : (this.calculatedValue == null ? false : this.calculatedValue), this.mandatory || this.mustCheck);
 			for (var i = 0; i < messages.length; i++) {
-				messages[i].component = this;
+				Object.defineProperty(messages[i], 'component', {
+					value: this,
+					enumerable: false
+				});
 			}
 			if (this.validator) {
 				var additional = this.validator(this.value);
 				if (additional && additional.length) {
 					for (var i = 0; i < additional.length; i++) {
-						additional[i].component = this;
+						Object.defineProperty(additional[i], 'component', {
+							value: this,
+							enumerable: false
+						});
 						if (typeof(additional[i].context) == "undefined") {
 							additional[i].context = [];
 						}
